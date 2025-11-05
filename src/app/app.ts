@@ -1,15 +1,15 @@
-import { Component, signal, ViewChild, ElementRef, inject } from '@angular/core';
+import {Component, signal, ViewChild, ElementRef, inject} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MatButton } from '@angular/material/button';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-// You will need to install and import the 'xlsx' library:
-// npm install xlsx
-// import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
+import { firstValueFrom } from 'rxjs';
+import {JsonPipe, NgForOf, NgIf} from '@angular/common'; // Import firstValueFrom
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, MatButton, HttpClientModule],
+  imports: [HttpClientModule, JsonPipe, NgForOf, NgIf, MatButton],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -18,6 +18,7 @@ export class App {
   protected readonly title = signal('OasisTools');
   message: string = '';
   private http = inject(HttpClient);
+  resp:any[]=[]
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -34,6 +35,8 @@ export class App {
     const files = input.files;
     this.handleFiles(files);
   }
+
+
 
   private handleFiles(files: FileList | null | undefined): void {
     if (files && files.length > 0) {
@@ -56,69 +59,98 @@ export class App {
     }
   }
 
+
+
+
   private processExcelFile(file: File): void {
     const reader = new FileReader();
 
-    reader.onload = (e: any) => {
+    reader.onload = async (e: any) => { // Changed to async
       const bstr: string = e.target.result;
-      // You would use XLSX.read(bstr, { type: 'binary' }) here
-      // For demonstration, we'll just log a message.
-      console.log(`Processing Excel file: ${file.name}`);
-
-      // Example of how you would typically use the xlsx library:
 
       const workbook = XLSX.read(bstr, { type: 'binary' });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
 
-      // Convert sheet to JSON or iterate through cells
-      const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-      console.log('Excel data:', data);
-
+      const rows:any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
       // To iterate through cells (example for a specific range A1:C5)
-      const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
-      for (let R = range.s.r; R <= range.e.r; ++R) {
-        for (let C = range.s.c; C <= range.s.c; ++C) {
-          const cell_address = { c: C, r: R };
-          const cell_ref = XLSX.utils.encode_cell(cell_address);
-          const cell = worksheet[cell_ref];
-          if (cell) {
-            console.log(`Cell ${cell_ref}: ${cell.v}`);
+      for(let row of rows.slice(1)){
+        if(row[0] && row[1]){
+          try{
+            let rc=await this.update_from_students_and_course(row[0],row[1],row[3],row[2],row[4])    // Await the async function
+            this.resp.push({ ...row, result:"ok"})
+          }catch (e:any){
+            this.resp.push({...row, result:"error",message:e.error})
           }
         }
       }
-
     };
 
     reader.readAsBinaryString(file);
   }
 
 
-  //domain="https://ent.cnsmdp.fr"
-  eval_discipline(code_course:string,code_student:string,status:string,mention="",comment="",year=2025,domain="https://testcnsmdp.scolasis.com"): void {
-    const url = domain+'/api/v2/'+year+'/assessments';
-    const headers = {
+
+  get_header(username="alumni",password="Hh4271!!"): any {
+    return {
       'accept': 'application/json',
-      'Authorization': 'Basic aC5ob2FyZWF1OkhoNDI3MSEh',
+      'Authorization': 'Basic '+btoa(username+":"+password),
       'Content-Type': 'application/json'
     };
-    let body={
-      "CODE_COURSE": code_course, //"DI216",
-      "CODE_STUDENT": code_student, //"karboleda",
-      "STATUS": status, //"PENDING|INVALIDATE|VALIDATE|VALIDATE_1|VALIDATE_2|VALIDATE_3",
-      "MENTION": mention, //"AB|B|TB|U|F",
+  }
+
+
+  async get_evals(code_course:string,year=2025) : Promise<any> {
+    const url = '/api/v2/'+year+'/courses/'+code_course+"/assessments"
+    return firstValueFrom(this.http.get(url, { headers:this.get_header() }));
+  }
+
+
+
+
+  async update_from_students_and_course(code_course:string,code_student:string,status:string,mention="",comment="",year=2025,update=true) {
+      if(update){
+        const evals:any[]=await this.get_evals(code_course);
+        for(let evl of evals){
+          if(evl.STUDENT.CODE==code_student){
+            return this.update_eval_discipline(evl.CODE,status,mention,comment,year)
+          }
+        }
+        //On fait l'ajout si l'évaluation n'existe pas
+        return this.eval_discipline(code_course,code_student,status,mention,comment,year)
+      }else{
+        //On ne fait que l'ajout
+        return this.eval_discipline(code_course,code_student,status,mention,comment,year)
+      }
+  }
+
+
+
+  async update_eval_discipline(code_assessments:string,status:string,mention="",comment="",year=2025){
+    //voir https://ent.cnsmdp.fr/api/v2/doc#/%C3%89valuations/Oasis%5CCnsmdParis%5COverride%5CApi%5CREST%5CData%5CController%5CCourseAssessmentProfile%5CCourseAssessmentCtrl%3A%3AupdateCourseAssessment
+    //voir https://testcnsmdp.scolasis.com/api/v2/doc#/%C3%89valuations/Oasis%5CCnsmdParis%5COverride%5CApi%5CREST%5CData%5CController%5CCourseAssessmentProfile%5CCourseAssessmentCtrl%3A%3AupdateCourseAssessment
+    const url = '/api/v2/'+year+'/assessments/'+code_assessments
+
+    const body={
+      "STATUS": status,
+      "MENTION": mention,
+      "COMMENT": comment,
+    }
+    return firstValueFrom(this.http.patch(url, body, { headers:this.get_header() }));
+  }
+
+
+  //domain="https://ent.cnsmdp.fr"
+  async eval_discipline(code_course:string,code_student:string,status:string,mention="",comment="",year=2025) {
+    const url = '/api/v2/'+year+'/assessments'
+
+    const body={
+      "CODE_COURSE":code_course,
+      "CODE_STUDENT":code_student,
+      "STATUS": status,
+      "MENTION": mention,
       "COMMENT": comment
     }
-
-    this.http.post(url, body, { headers }).subscribe({
-      next: (response) => {
-        console.log('Assessment sent successfully:', response);
-        this.message = 'Assessment sent successfully!';
-      },
-      error: (error) => {
-        console.error('Error sending assessment:', error);
-        this.message = `Error sending assessment: ${error.message || error.statusText}`;
-      }
-    });
+    return firstValueFrom(this.http.post(url, body, { headers:this.get_header() }));
   }
 }

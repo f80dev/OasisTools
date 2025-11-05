@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "https://testcnsmdp.scolasis.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
