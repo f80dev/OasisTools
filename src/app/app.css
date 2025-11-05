@@ -1,0 +1,46 @@
+body {
+  background-color: #303030;
+  color: #fff;
+}
+
+.drop-zone {
+  border: 2px dashed #666;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  color: #eee;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.drop-zone:hover {
+  background-color: #424242;
+}
+
+.drop-zone.drag-over {
+  background-color: #5a5a5a;
+  border-color: #80cbc4;
+}
+
+p {
+  margin-top: 10px;
+  font-family: Arial, sans-serif;
+  color: #bdbdbd;
+}
+
+.drop-zone button {
+  background-color: #6200EE;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-top: 15px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.drop-zone button:hover {
+  background-color: #3700B3;
+}
