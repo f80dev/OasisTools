@@ -1,7 +1,8 @@
 <div class="content">
   <div class="drop-zone" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (click)="fileInput.click()">
     <p>Drag and drop your Excel files here or click to browse</p>
-    <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple>
+    <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)"
+           accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple>
     <button mat-raised-button>Import Excel Files</button>
   </div>
 

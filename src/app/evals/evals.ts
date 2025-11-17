@@ -1,15 +1,19 @@
-import {Component, ElementRef, inject, signal, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, ViewChild} from '@angular/core';
 import {JsonPipe} from '@angular/common';
-import {HttpClient} from '@angular/common/http';
 import * as XLSX from 'xlsx';
 import { firstValueFrom } from 'rxjs';
 import {API_PASSWORD, API_USER} from '../../secret';
+import {HttpClient} from '@angular/common/http';
+import {MatButton} from '@angular/material/button';
+import {get_header} from '../../tools';
 
 
 @Component({
   selector: 'app-evals',
+  standalone:true,
   imports: [
-    JsonPipe
+    JsonPipe,
+    MatButton
   ],
   templateUrl: './evals.html',
   styleUrl: './evals.css',
@@ -50,7 +54,6 @@ export class Evals {
 
       if (excelFiles.length > 0) {
         this.message = `Selected ${excelFiles.length} Excel file(s). First file: ${excelFiles[0].name}`;
-        console.log('Selected Excel files:', excelFiles);
         excelFiles.forEach(file => this.processExcelFile(file));
       } else {
         this.message = 'No Excel files selected. Please drop or select Excel files (.xls, .xlsx).';
@@ -92,18 +95,11 @@ export class Evals {
 
 
 
-  get_header(username=API_USER,password=API_PASSWORD): any {
-    return {
-      'accept': 'application/json',
-      'Authorization': 'Basic '+btoa(username+":"+password),
-      'Content-Type': 'application/json'
-    };
-  }
 
 
   async get_evals(code_course:string,year=2025) : Promise<any> {
     const url = '/api/v2/'+year+'/courses/'+code_course+"/assessments"
-    return firstValueFrom(this.http.get(url, { headers:this.get_header() }));
+    return firstValueFrom(this.http.get(url, { headers:get_header() }));
   }
 
 
@@ -137,7 +133,7 @@ export class Evals {
       "MENTION": mention,
       "COMMENT": comment,
     }
-    return firstValueFrom(this.http.patch(url, body, { headers:this.get_header() }));
+    return firstValueFrom(this.http.patch(url, body, { headers:get_header() }));
   }
 
 
@@ -152,6 +148,6 @@ export class Evals {
       "MENTION": mention,
       "COMMENT": comment
     }
-    return firstValueFrom(this.http.post(url, body, { headers:this.get_header() }));
+    return firstValueFrom(this.http.post(url, body, { headers:get_header() }));
   }
 }
