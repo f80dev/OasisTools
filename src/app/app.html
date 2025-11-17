@@ -1,12 +1,20 @@
-<div class="drop-zone" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (click)="fileInput.click()">
-  <p>Drag and drop your Excel files here or click to browse</p>
-  <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple>
-  <button mat-raised-button>Import Excel Files</button>
-</div>
-
-<p>{{ message }}</p>
-
-<ul>
-  <li *ngFor="let item of resp">{{ item | json }}</li>
-</ul>
-
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="sidenav.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span>{{ title() }}</span>
+</mat-toolbar>
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #sidenav mode="side" position="start">
+    <mat-nav-list style="height: 100vh;">
+      <a mat-list-item routerLink="/">Accueil</a>
+      <a mat-list-item routerLink="/evals">Évaluer des disciplines</a>
+      <a mat-list-item routerLink="/evals">Recherche des profils</a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
