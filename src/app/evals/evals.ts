@@ -1,8 +1,7 @@
-import {Component, ElementRef, inject, ViewChild} from '@angular/core';
-import {JsonPipe} from '@angular/common';
+import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
+import {JsonPipe, NgForOf} from '@angular/common';
 import * as XLSX from 'xlsx';
 import { firstValueFrom } from 'rxjs';
-import {API_PASSWORD, API_USER} from '../../secret';
 import {HttpClient} from '@angular/common/http';
 import {MatButton} from '@angular/material/button';
 import {get_header} from '../../tools';
@@ -13,27 +12,38 @@ import {get_header} from '../../tools';
   standalone:true,
   imports: [
     JsonPipe,
-    MatButton
+    MatButton,
+    NgForOf
   ],
   templateUrl: './evals.html',
   styleUrl: './evals.css',
 })
-export class Evals {
+export class Evals implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef;
 
   message: string = '';
   private http = inject(HttpClient);
-  resp:any[]=[]
+  resp:any[]=[];
+  proxyTarget: string = '';
+
+  async ngOnInit() {
+    let config=await firstValueFrom(this.http.get<any>('proxy.conf.json'))
+    this.proxyTarget = config['/api'].target;
+  }
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
   }
+
+
 
   onDrop(event: DragEvent): void {
     event.preventDefault();
     const files = event.dataTransfer?.files;
     this.handleFiles(files);
   }
+
+
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -73,8 +83,7 @@ export class Evals {
       const bstr: string = e.target.result;
 
       const workbook = XLSX.read(bstr, { type: 'binary' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
+      const worksheet = workbook.Sheets["OASIS"];
 
       const rows:any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
       // To iterate through cells (example for a specific range A1:C5)
@@ -88,8 +97,7 @@ export class Evals {
           }
         }
       }
-    };
-
+    }
     reader.readAsBinaryString(file);
   }
 

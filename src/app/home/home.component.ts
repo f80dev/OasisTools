@@ -9,7 +9,7 @@ import {API_PASSWORD, API_USER} from '../../secret';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HttpClientModule, JsonPipe, NgForOf, NgIf, MatButton],
+  imports: [HttpClientModule, JsonPipe, NgForOf, MatButton],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })

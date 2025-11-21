@@ -4,6 +4,7 @@
   </button>
   <span>{{ title() }}</span>
 </mat-toolbar>
+
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #sidenav mode="side" position="start">
     <mat-nav-list style="height: 100vh;">
@@ -12,6 +13,7 @@
       <a mat-list-item routerLink="/search">Recherche des profils</a>
     </mat-nav-list>
   </mat-sidenav>
+
   <mat-sidenav-content>
     <div class="content">
       <router-outlet></router-outlet>
