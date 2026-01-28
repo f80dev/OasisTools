@@ -1,19 +1,22 @@
 import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
-import {JsonPipe, NgForOf} from '@angular/common';
+import {JsonPipe, NgForOf, NgIf} from '@angular/common';
 import * as XLSX from 'xlsx';
 import { firstValueFrom } from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {MatButton} from '@angular/material/button';
 import {get_header} from '../../tools';
+import {FormsModule} from "@angular/forms";
 
 
 @Component({
   selector: 'app-evals',
   standalone:true,
   imports: [
+    NgIf,
     JsonPipe,
     MatButton,
-    NgForOf
+    NgForOf,
+    FormsModule
   ],
   templateUrl: './evals.html',
   styleUrl: './evals.css',
@@ -25,6 +28,8 @@ export class Evals implements OnInit {
   private http = inject(HttpClient);
   resp:any[]=[];
   proxyTarget: string = '';
+  private isStopped = false;
+  stopOnError = true;
 
   async ngOnInit() {
     let config=await firstValueFrom(this.http.get<any>('proxy.conf.json'))
@@ -35,7 +40,44 @@ export class Evals implements OnInit {
     event.preventDefault();
   }
 
+  StoplImport(): void {
+    this.isStopped = true;
+    this.exportRespToCsv();
+    this.resp = [];
+  }
 
+  private exportRespToCsv(): void {
+    if (this.resp.length === 0) {
+      return;
+    }
+
+    const header = ['code_course', 'code_student', 'status', 'mention', 'comment', 'result', 'message'];
+    const csvRows = [header.join(',')];
+
+    for (const row of this.resp) {
+      const values = [
+        `"${(row[0] || '').toString().replace(/"/g, '""')}"`,
+        `"${(row[1] || '').toString().replace(/"/g, '""')}"`,
+        `"${(row[3] || '').toString().replace(/"/g, '""')}"`,
+        `"${(row[2] || '').toString().replace(/"/g, '""')}"`,
+        `"${(row[4] || '').toString().replace(/"/g, '""')}"`,
+        `"${(row.result || '').toString().replace(/"/g, '""')}"`,
+        `"${(row.message || '').toString().replace(/"/g, '""')}"`
+      ];
+      csvRows.push(values.join(','));
+    }
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'import_results.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
   onDrop(event: DragEvent): void {
     event.preventDefault();
@@ -54,6 +96,9 @@ export class Evals implements OnInit {
 
 
   private handleFiles(files: FileList | null | undefined): void {
+    this.isStopped = false;
+    this.resp = [];
+
     if (files && files.length > 0) {
       const excelFiles = Array.from(files).filter(file =>
         file.type === 'application/vnd.ms-excel' ||
@@ -80,6 +125,8 @@ export class Evals implements OnInit {
     const reader = new FileReader();
 
     reader.onload = async (e: any) => { // Changed to async
+      if (this.isStopped) return;
+
       const bstr: string = e.target.result;
 
       const workbook = XLSX.read(bstr, { type: 'binary' });
@@ -88,12 +135,24 @@ export class Evals implements OnInit {
       const rows:any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
       // To iterate through cells (example for a specific range A1:C5)
       for(let row of rows.slice(1)){
+        if (this.isStopped) {
+          this.message = 'Import cancelled.';
+          break;
+        }
         if(row[0] && row[1]){
           try{
             let rc=await this.update_from_students_and_course(row[0],row[1],row[3],row[2],row[4])    // Await the async function
-            this.resp.push({ ...row, result:"ok"})
+            if (!this.isStopped) {
+              this.resp.push({ ...row, result:"ok"})
+            }
           }catch (e:any){
-            this.resp.push({...row, result:"error",message:e.error})
+            if (!this.isStopped) {
+              this.resp.push({...row, result:"error",message:e.message})
+              if (this.stopOnError) {
+                this.isStopped = true;
+                this.message = 'Import stopped due to an error.';
+              }
+            }
           }
         }
       }
@@ -156,6 +215,11 @@ export class Evals implements OnInit {
       "MENTION": mention,
       "COMMENT": comment
     }
-    return firstValueFrom(this.http.post(url, body, { headers:get_header() }));
+    try {
+      return await firstValueFrom(this.http.post(url, body, {headers: get_header()}));
+    } catch (error) {
+      console.error('Error in eval_discipline:', error);
+      throw error;
+    }
   }
 }

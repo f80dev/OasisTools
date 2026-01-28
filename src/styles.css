@@ -6,4 +6,6 @@ content {
   padding:20px;
 }
 
-sidenav
+sidenav-container {
+  height: 100vh;
+}

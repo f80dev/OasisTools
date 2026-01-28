@@ -1,16 +1,36 @@
 <div class="content">
-  <p>Proxy Target: {{ proxyTarget }}</p>
 
-  <div class="drop-zone" (drop)="onDrop($event)"
+  <p>
+    Proxy Target: {{ proxyTarget }}
+    <br>
+    <a [href]="proxyTarget + '/api/v2/doc'" target="_blank">Doc API</a>
+  </p>
+
+
+  <p>
+    <input type="checkbox" [(ngModel)]="stopOnError" id="stopOnError">
+    <label for="stopOnError">Stop on first error</label>
+
+  </p>
+
+
+  <div *ngIf="resp.length == 0" class="drop-zone" (drop)="onDrop($event)"
        (dragover)="onDragOver($event)"
        (click)="fileInput.click()">
-
     <p>Drag and drop your Excel files here or click to browse</p>
     <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)"
            accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple>
-    <button mat-raised-button>Import Excel Files</button>
+    <div>
 
+
+    </div>
+    <button mat-raised-button>Import Excel Files</button>
   </div>
+
+
+  <button *ngIf="resp.length > 0" mat-raised-button (click)="StoplImport()">
+    Stop Import
+  </button>
 
   <p>{{message}}</p>
 

@@ -47,7 +47,9 @@ export class Searchtools implements OnInit {
       console.error('Impossible de lire le contenu du presse-papiers : ', err);
     }
 
+    console.log("Initialisation de l'environneent OASIS")
     await firstValueFrom(this.http.get("http://localhost:5002/api/init?homolo=false", { headers:get_header() }))
+    console.log("Environnement initialisé")
 
     let rc=[]
     for(let line of text.split("\r\n")){
@@ -55,5 +57,6 @@ export class Searchtools implements OnInit {
       const body={FNAME:cols[0],LNAME:cols.length>1 ? cols[1] : ""}
       rc.push(await firstValueFrom(this.http.post("http://localhost:5002/search", body, { headers:get_header() })))
     }
+    await firstValueFrom(this.http.get("http://localhost:5002/api/quit", { headers:get_header() }))
   }
 }
