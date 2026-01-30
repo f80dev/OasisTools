@@ -210,12 +210,13 @@ export class Evals implements OnInit {
 
     const body={
       "CODE_COURSE":code_course,
-      "CODE_STUDENT":code_student,
+      "CODE_STUDENT":"student_"+code_student,
       "STATUS": status,
       "MENTION": mention,
       "COMMENT": comment
     }
     try {
+      console.log("Envoi de "+JSON.stringify(body)+" sur "+url)
       return await firstValueFrom(this.http.post(url, body, {headers: get_header()}));
     } catch (error) {
       console.error('Error in eval_discipline:', error);
