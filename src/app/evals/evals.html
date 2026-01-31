@@ -32,6 +32,10 @@
     Stop Import
   </button>
 
+  <button *ngIf="resp.length > 0 && isStopped" mat-raised-button (click)="ClearImport()">
+    Clear
+  </button>
+
   <p>{{message}}</p>
 
   <ul>

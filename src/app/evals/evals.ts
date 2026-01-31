@@ -28,7 +28,7 @@ export class Evals implements OnInit {
   private http = inject(HttpClient);
   resp:any[]=[];
   proxyTarget: string = '';
-  private isStopped = false;
+  isStopped = false;
   stopOnError = true;
 
   async ngOnInit() {
@@ -43,7 +43,10 @@ export class Evals implements OnInit {
   StoplImport(): void {
     this.isStopped = true;
     this.exportRespToCsv();
-    this.resp = [];
+  }
+
+  ClearImport(): void {
+    this.resp=[]
   }
 
   private exportRespToCsv(): void {
@@ -147,7 +150,7 @@ export class Evals implements OnInit {
             }
           }catch (e:any){
             if (!this.isStopped) {
-              this.resp.push({...row, result:"error",message:e.message})
+              this.resp.push({...row, result:"error",message:e.error.error})
               if (this.stopOnError) {
                 this.isStopped = true;
                 this.message = 'Import stopped due to an error.';
@@ -173,18 +176,23 @@ export class Evals implements OnInit {
 
 
   async update_from_students_and_course(code_course:string,code_student:string,status:string,mention="",comment="",year=2025,update=true) {
-    if(update){
-      const evals:any[]=await this.get_evals(code_course);
-      for(let evl of evals){
-        if(evl.STUDENT.CODE==code_student){
-          return this.update_eval_discipline(evl.CODE,status,mention,comment,year)
+    try {
+      if (update) {
+        const evals: any[] = await this.get_evals(code_course);
+        for (let evl of evals) {
+          if (evl.STUDENT.CODE == code_student) {
+            return this.update_eval_discipline(evl.CODE, status, mention, comment, year)
+          }
         }
+        //On fait l'ajout si l'évaluation n'existe pas
+        return this.eval_discipline(code_course, code_student, status, mention, comment, year)
+      } else {
+        //On ne fait que l'ajout
+        return this.eval_discipline(code_course, code_student, status, mention, comment, year)
       }
-      //On fait l'ajout si l'évaluation n'existe pas
-      return this.eval_discipline(code_course,code_student,status,mention,comment,year)
-    }else{
-      //On ne fait que l'ajout
-      return this.eval_discipline(code_course,code_student,status,mention,comment,year)
+    } catch (e:any) {
+      console.error('Error in update_from_students_and_course:', e);
+      throw e.error.error();
     }
   }
 
@@ -197,7 +205,6 @@ export class Evals implements OnInit {
 
     const body={
       "STATUS": status,
-      "MENTION": mention,
       "COMMENT": comment,
     }
     return firstValueFrom(this.http.patch(url, body, { headers:get_header() }));
@@ -210,16 +217,15 @@ export class Evals implements OnInit {
 
     const body={
       "CODE_COURSE":code_course,
-      "CODE_STUDENT":"student_"+code_student,
+      "CODE_STUDENT":code_student,
       "STATUS": status,
-      "MENTION": mention,
       "COMMENT": comment
     }
     try {
       console.log("Envoi de "+JSON.stringify(body)+" sur "+url)
       return await firstValueFrom(this.http.post(url, body, {headers: get_header()}));
-    } catch (error) {
-      console.error('Error in eval_discipline:', error);
+    } catch (error: any) {
+      console.error('Error in eval_discipline:'+ error.error.error);
       throw error;
     }
   }
