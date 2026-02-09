@@ -71,7 +71,7 @@ export class Evals implements OnInit {
     }
 
     const csvContent = csvRows.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf--8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
@@ -150,7 +150,8 @@ export class Evals implements OnInit {
             }
           }catch (e:any){
             if (!this.isStopped) {
-              this.resp.push({...row, result:"error",message:e.error.error})
+              const errorMessage = e?.error?.error || e?.message || "An unknown error occurred";
+              this.resp.push({...row, result:"error",message: errorMessage})
               if (this.stopOnError) {
                 this.isStopped = true;
                 this.message = 'Import stopped due to an error.';
@@ -192,7 +193,7 @@ export class Evals implements OnInit {
       }
     } catch (e:any) {
       console.error('Error in update_from_students_and_course:', e);
-      throw e.error.error();
+      throw e;
     }
   }
 
@@ -225,7 +226,7 @@ export class Evals implements OnInit {
       console.log("Envoi de "+JSON.stringify(body)+" sur "+url)
       return await firstValueFrom(this.http.post(url, body, {headers: get_header()}));
     } catch (error: any) {
-      console.error('Error in eval_discipline:'+ error.error.error);
+      console.error('Error in eval_discipline:', error);
       throw error;
     }
   }
