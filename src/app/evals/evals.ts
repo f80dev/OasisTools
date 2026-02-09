@@ -4,8 +4,8 @@ import * as XLSX from 'xlsx';
 import { firstValueFrom } from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {MatButton} from '@angular/material/button';
-import {get_header} from '../../tools';
 import {FormsModule} from "@angular/forms";
+import {API_LOGIN, get_headers} from '../../secret';
 
 
 @Component({
@@ -27,13 +27,26 @@ export class Evals implements OnInit {
   message: string = '';
   private http = inject(HttpClient);
   resp:any[]=[];
-  proxyTarget: string = '';
-  isStopped = false;
-  stopOnError = true;
+  proxyTarget: string = ''
+  docApiUrl: string = ''
+  isStopped = false
+  stopOnError = true
+  currentConfig: 'development' | 'production' = 'development';
 
   async ngOnInit() {
-    let config=await firstValueFrom(this.http.get<any>('proxy.conf.json'))
+    await this.loadConfig();
+  }
+
+  async loadConfig() {
+    const configFile = this.currentConfig === 'development' ? 'proxy.conf.json' : 'proxy.conf.prod.json';
+    let config = await firstValueFrom(this.http.get<any>(configFile));
     this.proxyTarget = config['/api'].target;
+    this.docApiUrl = `${this.proxyTarget}/api/v2/doc`;
+  }
+
+  async switchConfig() {
+    this.currentConfig = (this.currentConfig === 'development' ? 'production' : 'development')
+    await this.loadConfig();
   }
 
   onDragOver(event: DragEvent): void {
@@ -170,7 +183,7 @@ export class Evals implements OnInit {
 
   async get_evals(code_course:string,year=2025) : Promise<any> {
     const url = '/api/v2/'+year+'/courses/'+code_course+"/assessments"
-    return firstValueFrom(this.http.get(url, { headers:get_header() }));
+    return firstValueFrom(this.http.get(url, { headers: get_headers(this.currentConfig) }));
   }
 
 
@@ -208,7 +221,7 @@ export class Evals implements OnInit {
       "STATUS": status,
       "COMMENT": comment,
     }
-    return firstValueFrom(this.http.patch(url, body, { headers:get_header() }));
+    return firstValueFrom(this.http.patch(url, body, { headers: get_headers(this.currentConfig) }));
   }
 
 
@@ -224,7 +237,7 @@ export class Evals implements OnInit {
     }
     try {
       console.log("Envoi de "+JSON.stringify(body)+" sur "+url)
-      return await firstValueFrom(this.http.post(url, body, {headers: get_header()}));
+      return await firstValueFrom(this.http.post(url, body, {headers: get_headers(this.currentConfig)}));
     } catch (error: any) {
       console.error('Error in eval_discipline:', error);
       throw error;

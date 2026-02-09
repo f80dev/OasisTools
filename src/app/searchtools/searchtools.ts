@@ -1,8 +1,8 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {MatButton} from '@angular/material/button';
 import {firstValueFrom} from 'rxjs';
-import {get_header} from '../../tools';
 import {HttpClient} from '@angular/common/http';
+import {get_headers} from '../../secret';
 
 @Component({
   selector: 'app-searchtools',
@@ -48,15 +48,15 @@ export class Searchtools implements OnInit {
     }
 
     console.log("Initialisation de l'environneent OASIS")
-    await firstValueFrom(this.http.get("http://localhost:5002/api/init?homolo=false", { headers:get_header() }))
+    await firstValueFrom(this.http.get("http://localhost:5002/api/init?homolo=false", { headers:get_headers() }))
     console.log("Environnement initialisé")
 
     let rc=[]
     for(let line of text.split("\r\n")){
       let cols=line.split("\t")
       const body={FNAME:cols[0],LNAME:cols.length>1 ? cols[1] : ""}
-      rc.push(await firstValueFrom(this.http.post("http://localhost:5002/search", body, { headers:get_header() })))
+      rc.push(await firstValueFrom(this.http.post("http://localhost:5002/search", body, { headers:get_headers() })))
     }
-    await firstValueFrom(this.http.get("http://localhost:5002/api/quit", { headers:get_header() }))
+    await firstValueFrom(this.http.get("http://localhost:5002/api/quit", {  headers:get_headers() }))
   }
 }

@@ -20,7 +20,6 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/manifest.webmanifest",
-              "src/proxy.conf.json",
               {
                 "glob": "**/*",
                 "input": "public"
@@ -46,27 +45,43 @@
                 }
               ],
               "outputHashing": "all",
-              "serviceWorker": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json",
+              "assets": [
+                "src/manifest.webmanifest",
+                "src/proxy.conf.prod.json",
+                {
+                  "glob": "**/*",
+                  "input": "public"
+                }
+              ]
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "assets": [
+                "src/manifest.webmanifest",
+                "src/proxy.conf.json",
+                "src/proxy.conf.prod.json",
+                {
+                  "glob": "**/*",
+                  "input": "public"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular/build:dev-server",
-          "options": {
-            "proxyConfig": "src/proxy.conf.json"
-          },
           "configurations": {
             "production": {
-              "buildTarget": "OasisTools:build:production"
+              "buildTarget": "OasisTools:build:production",
+              "proxyConfig": "src/proxy.conf.prod.json"
             },
             "development": {
-              "buildTarget": "OasisTools:build:development"
+              "buildTarget": "OasisTools:build:development",
+              "proxyConfig": "src/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

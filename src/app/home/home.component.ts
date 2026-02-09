@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx';
 import { firstValueFrom } from 'rxjs';
 import { JsonPipe, NgForOf, NgIf } from '@angular/common';
 import { MatButton } from '@angular/material/button';
-import {API_PASSWORD, API_USER} from '../../secret';
+import {API_LOGIN, get_headers} from '../../secret';
 
 @Component({
   selector: 'app-home',
@@ -77,17 +77,17 @@ export class HomeComponent {
     reader.readAsBinaryString(file);
   }
 
-  get_header(username = API_USER, password = API_PASSWORD): any {
-    return {
-      'accept': 'application/json',
-      'Authorization': 'Basic ' + btoa(username + ":" + password),
-      'Content-Type': 'application/json'
-    };
-  }
+  // get_header(username =API_LOGIN["test"]["username"], password = API_LOGIN["test"]["password"]): any {
+  //   return {
+  //     'accept': 'application/json',
+  //     'Authorization': 'Basic ' + btoa(username + ":" + password),
+  //     'Content-Type': 'application/json'
+  //   };
+  // }
 
   async get_evals(code_course: string, year = 2025): Promise<any> {
     const url = '/api/v2/' + year + '/courses/' + code_course + "/assessments";
-    return firstValueFrom(this.http.get(url, { headers: this.get_header() }));
+    return firstValueFrom(this.http.get(url, { headers: get_headers() }));
   }
 
   async update_from_students_and_course(code_course: string, code_student: string, status: string, mention = "", comment = "", year = 2025, update = true) {
@@ -107,12 +107,12 @@ export class HomeComponent {
   async update_eval_discipline(code_assessments: string, status: string, mention = "", comment = "", year = 2025) {
     const url = '/api/v2/' + year + '/assessments/' + code_assessments;
     const body = { "STATUS": status, "MENTION": mention, "COMMENT": comment };
-    return firstValueFrom(this.http.patch(url, body, { headers: this.get_header() }));
+    return firstValueFrom(this.http.patch(url, body, { headers: get_headers() }));
   }
 
   async eval_discipline(code_course: string, code_student: string, status: string, mention = "", comment = "", year = 2025) {
     const url = '/api/v2/' + year + '/assessments';
     const body = { "CODE_COURSE": code_course, "CODE_STUDENT": code_student, "STATUS": status, "MENTION": mention, "COMMENT": comment };
-    return firstValueFrom(this.http.post(url, body, { headers: this.get_header() }));
+    return firstValueFrom(this.http.post(url, body, { headers: get_headers() }));
   }
 }

@@ -1,9 +1,12 @@
 <div class="content">
 
   <p>
-    Proxy Target: {{ proxyTarget }}
-    <br>
-    <a [href]="proxyTarget + '/api/v2/doc'" target="_blank">Doc API</a>
+    Proxy Target: {{ proxyTarget }} (<a [href]="docApiUrl" target="_blank">Doc API</a>)
+  </p>
+
+  <p>
+    Current Configuration: {{ currentConfig }}
+    <button mat-raised-button (click)="switchConfig()">Switch Config</button>
   </p>
 
 
