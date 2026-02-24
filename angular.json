@@ -81,7 +81,7 @@
             },
             "development": {
               "buildTarget": "OasisTools:build:development",
-              "proxyConfig": "src/proxy.conf.json"
+              "proxyConfig": "src/proxy.conf.prod.json"
             }
           },
           "defaultConfiguration": "development"

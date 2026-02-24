@@ -5,7 +5,9 @@ import { firstValueFrom } from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {MatButton} from '@angular/material/button';
 import {FormsModule} from "@angular/forms";
-import {API_LOGIN, get_headers} from '../../secret';
+import {API_LOGIN} from '../../secret';
+import {get_headers} from '../../tools';
+
 
 
 @Component({
@@ -31,10 +33,16 @@ export class Evals implements OnInit {
   docApiUrl: string = ''
   isStopped = false
   stopOnError = true
+  importFirstLineOnly = false;
   currentConfig: 'development' | 'production' = 'development';
 
   async ngOnInit() {
     await this.loadConfig();
+  }
+
+  get_headers_from_proxy() : any {
+    const s: string = (this.currentConfig === 'development' ? "test" : "prod");
+    return get_headers(s)
   }
 
   async loadConfig() {
@@ -148,9 +156,13 @@ export class Evals implements OnInit {
       const workbook = XLSX.read(bstr, { type: 'binary' });
       const worksheet = workbook.Sheets["OASIS"];
 
-      const rows:any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      let rows:any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      rows = rows.slice(1);
+      if (this.importFirstLineOnly) {
+        rows = rows.slice(0, 1);
+      }
       // To iterate through cells (example for a specific range A1:C5)
-      for(let row of rows.slice(1)){
+      for(let row of rows){
         if (this.isStopped) {
           this.message = 'Import cancelled.';
           break;
@@ -172,6 +184,7 @@ export class Evals implements OnInit {
             }
           }
         }
+        if(this.importFirstLineOnly)break
       }
     }
     reader.readAsBinaryString(file);
@@ -183,7 +196,7 @@ export class Evals implements OnInit {
 
   async get_evals(code_course:string,year=2025) : Promise<any> {
     const url = '/api/v2/'+year+'/courses/'+code_course+"/assessments"
-    return firstValueFrom(this.http.get(url, { headers: get_headers(this.currentConfig) }));
+    return firstValueFrom(this.http.get(url, { headers: this.get_headers_from_proxy() }));
   }
 
 
@@ -221,7 +234,7 @@ export class Evals implements OnInit {
       "STATUS": status,
       "COMMENT": comment,
     }
-    return firstValueFrom(this.http.patch(url, body, { headers: get_headers(this.currentConfig) }));
+    return firstValueFrom(this.http.patch(url, body, { headers: this.get_headers_from_proxy() }));
   }
 
 
@@ -237,7 +250,7 @@ export class Evals implements OnInit {
     }
     try {
       console.log("Envoi de "+JSON.stringify(body)+" sur "+url)
-      return await firstValueFrom(this.http.post(url, body, {headers: get_headers(this.currentConfig)}));
+      return await firstValueFrom(this.http.post(url, body, {headers: this.get_headers_from_proxy()}));
     } catch (error: any) {
       console.error('Error in eval_discipline:', error);
       throw error;

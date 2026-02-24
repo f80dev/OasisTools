@@ -4,7 +4,8 @@ import * as XLSX from 'xlsx';
 import { firstValueFrom } from 'rxjs';
 import { JsonPipe, NgForOf, NgIf } from '@angular/common';
 import { MatButton } from '@angular/material/button';
-import {API_LOGIN, get_headers} from '../../secret';
+import {get_headers} from '../../tools';
+
 
 @Component({
   selector: 'app-home',

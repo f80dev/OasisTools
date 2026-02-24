@@ -2,7 +2,7 @@ import {Component, inject, OnInit} from '@angular/core';
 import {MatButton} from '@angular/material/button';
 import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {get_headers} from '../../secret';
+import {get_headers} from '../../tools';
 
 @Component({
   selector: 'app-searchtools',
