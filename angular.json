@@ -48,7 +48,7 @@
               "serviceWorker": "ngsw-config.json",
               "assets": [
                 "src/manifest.webmanifest",
-                "src/proxy.conf.prod.json",
+                "src/proxy.conf.json",
                 {
                   "glob": "**/*",
                   "input": "public"

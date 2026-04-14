@@ -9,3 +9,7 @@ content {
 sidenav-container {
   height: 100vh;
 }
+
+.mainform {
+  padding: 10px;
+}

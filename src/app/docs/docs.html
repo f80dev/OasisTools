@@ -1,0 +1,43 @@
+<div class="mainform">
+  <div *ngIf="message!=''" style="display: flex;">
+    <mat-progress-spinner [diameter]="20" mode="indeterminate" color="primary"></mat-progress-spinner>
+    &nbsp;{{message}}
+  </div>
+  <br>
+
+  <mat-form-field class="select-cursus">
+    <mat-label>Cursus</mat-label>
+    <mat-select (selectionChange)="on_select_cursus($event)">
+      <mat-option *ngFor="let item of cursus_list" [value]="item">
+        {{item.TITLE_FR}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div *ngIf="selected_cursus">
+    <mat-form-field class="select-cursus">
+      <mat-label>Etudiants</mat-label>
+      <mat-select matNativeControl multiple id="student-select" #studentselect>
+        <mat-option *ngFor="let student of student_list" [value]="student">
+          {{student.FNAME}} {{student.LNAME}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <br>
+
+    <div *ngIf="!template">
+      <label for="docx-file-input">Sélectionner un fichier .docx :</label>
+      <input type="file" id="docx-file-input" accept=".docx" (change)="on_file_selected($event)">
+    </div>
+
+    <br><br>
+  </div>
+
+  <button *ngIf="template && selected_cursus && student_select"
+          mat-raised-button (click)="generate_doc(template)">Générer</button>
+
+  <button *ngIf="template"
+          mat-raised-button (click)="clear_doc()">Effacer</button>
+
+</div>
