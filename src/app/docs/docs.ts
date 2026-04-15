@@ -8,6 +8,7 @@ import {MatSelect, MatSelectChange, MatSelectModule} from "@angular/material/sel
 import { createReport } from 'docx-templates';
 import {MatButtonModule} from "@angular/material/button";
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {TemplateHandler} from 'easy-template-x';
 
 @Component({
   selector: 'app-docs',
@@ -42,7 +43,12 @@ export class Docs implements OnInit {
   async api(url:string,message="",year=2025) {
     url="/api/v2/"+year+"/"+url
     this.message=message
-    const rc= await firstValueFrom(this.http.get(url, {headers: get_headers()}));
+    let rc: any =[]
+    try{
+      rc = await firstValueFrom(this.http.get(url, {headers: get_headers()}));
+    }catch (e){
+
+    }
     this.message=""
     return rc
   }
@@ -59,6 +65,10 @@ export class Docs implements OnInit {
     return await this.api('students/'+student+'/courses',"Chargement des disciplines...",year)
   }
 
+  async get_eval_disciplines(student:string,discipline:string,year:number) {
+    return await this.api('students/'+student+'/courses',"Chargement des disciplines...",year)
+  }
+
   async on_select_cursus($event: MatSelectChange<any>) {
     this.selected_cursus=$event.value
     this.student_list=await this.get_students(this.selected_cursus.CODE) as any[]
@@ -68,7 +78,7 @@ export class Docs implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selected_file = input.files[0];
-      await this.readfile_2(this.selected_file)
+      await this.readfile(this.selected_file)
     }
   }
 
@@ -78,15 +88,16 @@ export class Docs implements OnInit {
 
 
 
+
   async complete_student(student:any) {
     student.DISCIPLINES=[]
     for(let y of [2023,2024,2025]){
       let d=await this.get_disciplines(student.CODE,y) as any[]
       for(let i=0;i<d.length;i++){
         d[i].year=y
+        let evals=await this.api("courses/"+d[i].CODE+"/assessments")
         student.DISCIPLINES.push(d[i])
       }
-
     }
     return student
   }
@@ -114,7 +125,7 @@ export class Docs implements OnInit {
     for (let i = 0; i < len; i++) {
       bytes[i] = binary_string.charCodeAt(i);
     }
-    return bytes;
+    return bytes.buffer;
   }
 
 
@@ -123,6 +134,8 @@ export class Docs implements OnInit {
       alert("Veuillez sélectionner un fichier et au moins un étudiant.");
       return;
     }
+
+
 
     const templateBuffer = this.base64ToUint8Array(this.template.split(",")[1])
 
@@ -136,15 +149,16 @@ export class Docs implements OnInit {
       for(let k in this.selected_cursus)
         rc["CURSUS_"+k]=this.selected_cursus[k]
 
+      let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
+
+
       try {
-        const out = await createReport({
-          template:  templateBuffer,
-          data: rc,
-          noSandbox: true
-        });
+
+        //Voir la documentation : https://templatedocs.io/docs/intro
+        const doc=await new TemplateHandler().process(templateBuffer,rc)
 
         saveDataToFile(
-          out,
+          doc,
           'report.docx',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         )
