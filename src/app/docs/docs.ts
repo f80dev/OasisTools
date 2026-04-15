@@ -27,6 +27,8 @@ export class Docs implements OnInit {
   protected message=""
   public selected_cursus: any | undefined
   public template: any;
+  private cursus_disciplines:any
+  private evals:any
 
   async ngOnInit()  {
     const json_cursus=localStorage.getItem("cursus")
@@ -37,6 +39,8 @@ export class Docs implements OnInit {
       localStorage.setItem("cursus",JSON.stringify(this.cursus_list))
     }
 
+    this.cursus_disciplines=await this.get_maquettage()
+    //this.evals=await this.get_all_evals()
     this.template=localStorage.getItem("template")
   }
 
@@ -56,6 +60,19 @@ export class Docs implements OnInit {
   async get_cursus() {
     return await this.api('modules?subclass_detail=false',"chargement des cursus")
     }
+
+  async get_maquettage() {
+    try {
+      return await firstValueFrom(this.http.get("contenudescursus.json"));
+    } catch (e) {
+      let rc: any = {}
+      for (let y = 2016; y < 2026; y++) {
+        let k = y.toString()
+        rc[k] = await this.api('moduleCourses', "chargement du maquettage", y)
+      }
+      return rc
+    }
+  }
 
   async get_students(cursus:string) {
     return await this.api('modules/'+cursus+'/students',"chargement des étudiants")
@@ -87,15 +104,51 @@ export class Docs implements OnInit {
   }
 
 
+  complete_discipline(discipline:any,cursus:string,y:number) {
+    for(let d of this.cursus_disciplines[y.toString()]){
+      if(d.CODE==discipline.CODE && d.CODE_MODULE==cursus){
+        discipline.COURSE_TYPE=d.COURSE_TYPE
+        return discipline
+      }
+    }
+    return discipline
+  }
+
+
+  async get_all_evals() {
+    try {
+      return await firstValueFrom(this.http.get("all_evals.json"));
+    } catch (e) {
+      let rc: any = {}
+      for (let y = 2016; y < 2026; y++) {
+        rc[y.toString()]=[]
+        for (let d of await this.api("courses","",y)){
+          for(let e of await this.api("courses/"+d.CODE+"/assessments","",y)){
+            e.STUDENT=e.STUDENT.CODE
+            e.CODE_COURSE=d.CODE
+            rc[y.toString()].push(e)
+          }
+
+        }
+      }
+      return rc
+    }
+  }
 
 
   async complete_student(student:any) {
     student.DISCIPLINES=[]
-    for(let y of [2023,2024,2025]){
+    for(let y=2017;y<=2026;y++){
       let d=await this.get_disciplines(student.CODE,y) as any[]
       for(let i=0;i<d.length;i++){
-        d[i].year=y
-        let evals=await this.api("courses/"+d[i].CODE+"/assessments")
+        d[i]=this.complete_discipline(d[i],this.selected_cursus.CODE,y)
+        for(let e of await this.api("courses/"+d[i].CODE+"/assessments","",y)){
+          if(e.STUDENT.CODE==student.CODE){
+            d[i].MENTION=e.MENTION.LABEL
+            d[i].VALIDATE=e.STATUS.LABEL
+            d[i].COMMENT=e.COMMENT
+          }
+        }
         student.DISCIPLINES.push(d[i])
       }
     }
