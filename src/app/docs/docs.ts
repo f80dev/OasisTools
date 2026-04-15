@@ -1,21 +1,18 @@
 import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {get_headers} from '../../tools';
+import {get_headers, saveDataToFile} from '../../tools';
 import {CommonModule} from "@angular/common";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatSelect, MatSelectChange, MatSelectModule} from "@angular/material/select";
-import PizZip from 'pizzip';
-import Docxtemplater from 'docxtemplater';
-import { saveAs } from 'file-saver';
+import { createReport } from 'docx-templates';
 import {MatButtonModule} from "@angular/material/button";
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
-import {MatProgressBar} from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-docs',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatSelectModule, MatButtonModule, MatProgressSpinner, MatProgressBar],
+  imports: [CommonModule, MatFormFieldModule, MatSelectModule, MatButtonModule, MatProgressSpinner],
   templateUrl: './docs.html',
   styleUrl: './docs.css',
 })
@@ -71,7 +68,7 @@ export class Docs implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selected_file = input.files[0];
-      await this.readfile(this.selected_file)
+      await this.readfile_2(this.selected_file)
     }
   }
 
@@ -108,20 +105,29 @@ export class Docs implements OnInit {
   }
 
 
+
+
+  private base64ToUint8Array(base64: string) {
+    const binary_string = window.atob(base64);
+    const len = binary_string.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+
   async generate_doc(to_save=true) {
     if (!this.template || !this.student_select || this.student_select.value.length === 0) {
       alert("Veuillez sélectionner un fichier et au moins un étudiant.");
       return;
     }
 
-    const zip=new PizZip(this.template.split(",")[1],{ base64: true });
+    const templateBuffer = this.base64ToUint8Array(this.template.split(",")[1])
 
     for(let student of this.student_select!.value){
       student=await this.complete_student(student)
-      const doc = new Docxtemplater(zip, {
-        paragraphLoop: true,
-        linebreaks: true
-      });
 
       let rc:any={}
       for(let k in student)
@@ -130,15 +136,20 @@ export class Docs implements OnInit {
       for(let k in this.selected_cursus)
         rc["CURSUS_"+k]=this.selected_cursus[k]
 
-      doc.setData(rc);
-
       try {
-        doc.render();
-        const out = doc.getZip().generate({
-          type: "blob",
-          mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        const out = await createReport({
+          template:  templateBuffer,
+          data: rc,
+          noSandbox: true
         });
-        if(to_save)saveAs(out, `document_${student.LNAME}_${student.FNAME}.docx`);
+
+        saveDataToFile(
+          out,
+          'report.docx',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        )
+
+        //if(to_save)saveAs(new Blob([out.buffer]), `document_${student.LNAME}_${student.FNAME}.docx`);
         this.clear_form()
 
       } catch (error) {
