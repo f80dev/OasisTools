@@ -182,13 +182,13 @@ export class Docs implements OnInit {
   }
 
 
+
+
   async generate_doc(to_save=true) {
     if (!this.template || !this.student_select || this.student_select.value.length === 0) {
       alert("Veuillez sélectionner un fichier et au moins un étudiant.");
       return;
     }
-
-
 
     const templateBuffer = this.base64ToUint8Array(this.template.split(",")[1])
 
