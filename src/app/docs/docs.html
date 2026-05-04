@@ -9,7 +9,7 @@
     <mat-label>Cursus</mat-label>
     <mat-select (selectionChange)="on_select_cursus($event)">
       <mat-option *ngFor="let item of cursus_list" [value]="item">
-        {{item.TITLE_FR}}
+        {{item.NAME || item.CURSUS_NAME}}
       </mat-option>
     </mat-select>
   </mat-form-field>
@@ -26,18 +26,22 @@
 
     <br>
 
-    <div *ngIf="!template">
+    <div *ngIf="!template || template_name==''">
       <label for="docx-file-input">Sélectionner un fichier .docx :</label>
       <input type="file" id="docx-file-input" accept=".docx" (change)="on_file_selected($event)">
+    </div>
+
+    <div *ngIf="template_name!=''">
+      <span style="opacity: 0.5">Modèle sélectionné:</span> {{template_name.replace(".docx","")}}
     </div>
 
     <br><br>
   </div>
 
-  <button *ngIf="template && selected_cursus && student_select"
+  <button *ngIf="template && selected_cursus && student_select && student_select.value && student_select.value.length>0"
           mat-raised-button (click)="generate_doc(template)">Générer</button>
 
-  <button *ngIf="template"
-          mat-raised-button (click)="clear_doc()">Effacer</button>
+  <button *ngIf="template && template_name"
+          mat-raised-button (click)="clear_doc()">Autre modèle</button>
 
 </div>

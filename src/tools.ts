@@ -1,7 +1,22 @@
 import {API_LOGIN} from './secret';
+import {parseOffice} from 'officeparser';
+import * as JSZip from 'jszip';
+import {XMLParser} from 'fast-xml-parser';
 
-export function translate_to_openxml(text:string) : string | any {
-  if(!text)return null;
+export function clear_text(text:any) : string {
+  if(!text || typeof(text)!="string")return text
+  for(let balise of ["<p>","</p>"]){
+    text=text.replace(balise,"")
+  }
+  for(let sub of [["de a","d'a"]]){
+    text=text.replace(sub[0],sub[1])
+  }
+  return text
+}
+
+
+export function translate_to_openxml(text:any) : string | any {
+  if(!text || typeof(text)!="string")return text
 
   const COLOR_MAP: { [key: string]: string } = {
     red: "FF0000",
@@ -20,6 +35,7 @@ export function translate_to_openxml(text:string) : string | any {
   const tagRegex = /<(\/?)(g|color:([a-zA-Z]+))>/g;
   let lastIndex = 0;
   let match;
+  if(tagRegex.exec(text)==null)return text
 
   while ((match = tagRegex.exec(text)) !== null) {
     // Extract text segment before the current tag
@@ -123,3 +139,51 @@ export function saveDataToFile(data:any, fileName:string, mimeType:string) {
     window.URL.revokeObjectURL(url);
   }, 1000);
 }
+
+
+
+export async function get_properties_old(files:string[]=["template.docx"]) {
+  let rc=[]
+  for(let file of files){
+    rc.push(await parseOffice(await (await fetch(file)).arrayBuffer()))
+  }
+  return rc
+}
+
+
+export async function get_properties(files: string[] = ["student.docx"]) {
+  const rc = [];
+  const parser = new XMLParser({ ignoreAttributes: false, removeNSPrefix: true });
+
+  for (const file of files) {
+    try {
+      // 1. Récupération du fichier en ArrayBuffer
+      const response = await fetch(file);
+      const arrayBuffer = await response.arrayBuffer();
+
+      // 2. Chargement du ZIP (le .docx)
+      const zip = await JSZip.loadAsync(arrayBuffer);
+      const coreXmlFile = zip.file("docProps/core.xml");
+
+      if (coreXmlFile) {
+        const xmlContent = await coreXmlFile.async("string");
+        const jsonObj = parser.parse(xmlContent);
+        const props = jsonObj.coreProperties;
+
+        // 3. Extraction ciblée des propriétés demandées
+        rc.push({
+          fileName: file,
+          subject: props.subject || null,
+          category: props.category || null,
+          keywords: props.keywords || null,
+          lastModifiedBy: props.lastModifiedBy || null
+        });
+      }
+    } catch (error) {
+      console.error(`Erreur sur le fichier ${file}:`, error);
+      rc.push({ fileName: file, error: "Parsing failed" });
+    }
+  }
+  return rc;
+}
+

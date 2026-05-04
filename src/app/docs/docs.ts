@@ -1,13 +1,14 @@
 import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {get_headers, saveDataToFile, translate_to_openxml} from '../../tools';
+import {clear_text, get_headers, get_properties, saveDataToFile, translate_to_openxml} from '../../tools';
 import {CommonModule} from "@angular/common";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatSelect, MatSelectChange, MatSelectModule} from "@angular/material/select";
 import {MatButtonModule} from "@angular/material/button";
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {TemplateHandler} from 'easy-template-x';
+import {OfficeParserAST} from 'officeparser';
 
 @Component({
   selector: 'app-docs',
@@ -27,7 +28,7 @@ export class Docs implements OnInit {
   public selected_cursus: any | undefined
   public template: any;
   private cursus_disciplines:any
-  private evals:any
+  public template_name: string=""
 
   async ngOnInit()  {
     const json_cursus=localStorage.getItem("cursus")
@@ -37,11 +38,11 @@ export class Docs implements OnInit {
       this.cursus_list=await this.get_cursus() as any[]
       localStorage.setItem("cursus",JSON.stringify(this.cursus_list))
     }
-
     this.cursus_disciplines=await this.get_maquettage()
     //this.evals=await this.get_all_evals()
     this.template=localStorage.getItem("template")
   }
+
 
   async api(url:string,message="",year=2025) {
     url="/api/v2/"+year+"/"+url
@@ -52,7 +53,6 @@ export class Docs implements OnInit {
     }catch (e){
 
     }
-    this.message=""
     return rc
   }
 
@@ -74,20 +74,25 @@ export class Docs implements OnInit {
   }
 
   async get_students(cursus:string) {
-    return await this.api('modules/'+cursus+'/students',"chargement des étudiants")
+    return await this.api('modules/'+cursus+'/students',"chargement des étudiants ...")
   }
 
   async get_disciplines(student:string,year:number) {
-    return await this.api('students/'+student+'/courses',"Chargement des disciplines...",year)
+    return await this.api('students/'+student+'/courses',"Chargement des disciplines ...",year)
   }
 
   async get_eval_disciplines(student:string,discipline:string,year:number) {
-    return await this.api('students/'+student+'/courses',"Chargement des disciplines...",year)
+    return await this.api('students/'+student+'/courses',"Chargement des disciplines ...",year)
   }
 
   async on_select_cursus($event: MatSelectChange<any>) {
     this.selected_cursus=$event.value
     this.student_list=await this.get_students(this.selected_cursus.CODE) as any[]
+    this.message=""
+    // this.templates=[]
+    // for (let t of await get_properties()){
+    //   if(t.subject.indexOf(this.selected_cursus.code)>-1 || t.subject=="")this.templates.push(t)
+    // }
   }
 
   async on_file_selected(event: Event) {
@@ -141,7 +146,7 @@ export class Docs implements OnInit {
       let d=await this.get_disciplines(student.CODE,y) as any[]
       for(let i=0;i<d.length;i++){
         d[i]=this.complete_discipline(d[i],this.selected_cursus.CODE,y)
-        for(let e of await this.api("courses/"+d[i].CODE+"/assessments","",y)){
+        for(let e of await this.api("courses/"+d[i].CODE+"/assessments","Récupération des résultats ...",y)){
           if(e.STUDENT.CODE==student.CODE){
             d[i].MENTION=e.MENTION.LABEL
             d[i].VALIDATE=e.STATUS.LABEL
@@ -162,7 +167,13 @@ export class Docs implements OnInit {
       reader.readAsDataURL(file);
       reader.onload = () => {
         this.template=reader.result
-        localStorage.setItem("template",this.template || "")
+        this.template_name=file.name.replace(".docx","")
+        try{
+          localStorage.setItem("template",this.template || "")
+        }catch (e){
+          console.log("Impossible de stocker le modele en local")
+        }
+
         resolve(true)
       }})
   }
@@ -191,26 +202,27 @@ export class Docs implements OnInit {
     const templateBuffer = this.base64ToUint8Array(this.template.split(",")[1])
 
     for(let student of this.student_select!.value){
+      this.message="Traitement de "+student.FNAME+" "+student.LNAME
       student=await this.complete_student(student)
 
       let rc:any={}
       for(let k in student)
-        rc["STUDENT_"+k]=translate_to_openxml(student[k])
+        rc["STUDENT_"+k]=translate_to_openxml(clear_text(student[k]))
 
       for(let k in this.selected_cursus)
-        rc["CURSUS_"+k]=translate_to_openxml(this.selected_cursus[k])
+        rc["CURSUS_"+k]=translate_to_openxml(clear_text(this.selected_cursus[k]))
 
       let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
-
 
       try {
 
         //Voir la documentation : https://templatedocs.io/docs/intro
+        this.message="Production du document"
         const doc=await new TemplateHandler().process(templateBuffer,rc)
 
         saveDataToFile(
           doc,
-          'report.docx',
+          this.template_name+"_"+student.LNAME+"_"+student.FNAME+".docx",
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         )
         //if(to_save)saveAs(new Blob([out.buffer]), `document_${student.LNAME}_${student.FNAME}.docx`);
@@ -219,6 +231,7 @@ export class Docs implements OnInit {
         console.error("Erreur lors de la génération du document pour " + student.FNAME, error);
       }
     }
+    this.message=""
   }
 
   protected clear_doc() {
