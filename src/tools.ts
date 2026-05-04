@@ -5,11 +5,11 @@ import {XMLParser} from 'fast-xml-parser';
 
 export function clear_text(text:any) : string {
   if(!text || typeof(text)!="string")return text
-  for(let balise of ["<p>","</p>"]){
-    text=text.replace(balise,"")
+  for(let balise of ["<p>","</p>","<sup>","</sup>"]){
+    text=text.replaceAll(balise,"")
   }
   for(let sub of [["de a","d'a"]]){
-    text=text.replace(sub[0],sub[1])
+    text=text.replaceAll(sub[0],sub[1])
   }
   return text
 }
