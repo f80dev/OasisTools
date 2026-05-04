@@ -1,11 +1,10 @@
 import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {get_headers, saveDataToFile} from '../../tools';
+import {get_headers, saveDataToFile, translate_to_openxml} from '../../tools';
 import {CommonModule} from "@angular/common";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatSelect, MatSelectChange, MatSelectModule} from "@angular/material/select";
-import { createReport } from 'docx-templates';
 import {MatButtonModule} from "@angular/material/button";
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {TemplateHandler} from 'easy-template-x';
@@ -183,7 +182,6 @@ export class Docs implements OnInit {
 
 
 
-
   async generate_doc(to_save=true) {
     if (!this.template || !this.student_select || this.student_select.value.length === 0) {
       alert("Veuillez sélectionner un fichier et au moins un étudiant.");
@@ -197,10 +195,10 @@ export class Docs implements OnInit {
 
       let rc:any={}
       for(let k in student)
-        rc["STUDENT_"+k]=student[k]
+        rc["STUDENT_"+k]=translate_to_openxml(student[k])
 
       for(let k in this.selected_cursus)
-        rc["CURSUS_"+k]=this.selected_cursus[k]
+        rc["CURSUS_"+k]=translate_to_openxml(this.selected_cursus[k])
 
       let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
 
@@ -215,10 +213,8 @@ export class Docs implements OnInit {
           'report.docx',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         )
-
         //if(to_save)saveAs(new Blob([out.buffer]), `document_${student.LNAME}_${student.FNAME}.docx`);
         this.clear_form()
-
       } catch (error) {
         console.error("Erreur lors de la génération du document pour " + student.FNAME, error);
       }

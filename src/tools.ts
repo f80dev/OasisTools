@@ -1,5 +1,100 @@
 import {API_LOGIN} from './secret';
 
+export function translate_to_openxml(text:string) : string | any {
+  if(!text)return null;
+
+  const COLOR_MAP: { [key: string]: string } = {
+    red: "FF0000",
+    blue: "0000FF",
+    green: "00FF00",
+    // Ajoutez d'autres couleurs si nécessaire
+  };
+
+  const outputParts: string[] = [];
+  let styleStack: { type: 'bold' | 'color', value?: string }[] = [];
+
+  // Regex to find any opening or closing tag
+  // Group 1: '/' for closing tag, empty for opening
+  // Group 2: 'g' or 'color'
+  // Group 3: color name if it's a color tag
+  const tagRegex = /<(\/?)(g|color:([a-zA-Z]+))>/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = tagRegex.exec(text)) !== null) {
+    // Extract text segment before the current tag
+    const textSegment = text.substring(lastIndex, match.index);
+    if (textSegment) {
+      outputParts.push(generateOpenXmlRun(textSegment, styleStack, COLOR_MAP));
+    }
+
+    const isClosingTag = match[1] === '/';
+    const fullTagName = match[2]; // e.g., 'g' or 'color:red'
+    const colorName = match[3]; // e.g., 'red'
+
+    if (isClosingTag) {
+      // Pop style from stack
+      if (fullTagName === 'g') {
+        const index = styleStack.findIndex(s => s.type === 'bold');
+        if (index !== -1) styleStack.splice(index, 1);
+      } else if (fullTagName.startsWith('color:')) {
+        const index = styleStack.findIndex(s => s.type === 'color' && s.value === colorName);
+        if (index !== -1) styleStack.splice(index, 1);
+      }
+    } else {
+      // Push style onto stack
+      if (fullTagName === 'g') {
+        styleStack.push({ type: 'bold' });
+      } else if (fullTagName.startsWith('color:')) {
+        styleStack.push({ type: 'color', value: colorName });
+      }
+    }
+    lastIndex = tagRegex.lastIndex;
+  }
+
+  // Process any remaining text after the last tag
+  const remainingText = text.substring(lastIndex);
+  if (remainingText) {
+    outputParts.push(generateOpenXmlRun(remainingText, styleStack, COLOR_MAP));
+  }
+
+  return {_type:"rawXml",xml:outputParts.join('')};
+}
+
+function generateOpenXmlRun(
+  content: string,
+  styleStack: { type: 'bold' | 'color', value?: string }[],
+  COLOR_MAP: { [key: string]: string }
+): string {
+  let properties = '';
+  let isBold = false;
+  let colorHex = '';
+
+  for (const style of styleStack) {
+    if (style.type === 'bold') {
+      isBold = true;
+    } else if (style.type === 'color' && style.value) {
+      const mappedColor = COLOR_MAP[style.value.toLowerCase()];
+      if (mappedColor) {
+        colorHex = mappedColor;
+      }
+    }
+  }
+
+  if (isBold) {
+    properties += '<w:b/>';
+  }
+  if (colorHex) {
+    properties += `<w:color w:val="${colorHex}"/>`;
+  }
+
+  if (properties) {
+    return `<w:r><w:rPr>${properties}</w:rPr><w:t xml:space="preserve">${content}</w:t></w:r>`;
+  } else {
+    return `<w:r><w:t xml:space="preserve">${content}</w:t></w:r>`;
+  }
+}
+
 
 export function get_headers(config = 'prod') : any {
   const s: 'test' | 'prod' = (config === 'development' ? "test" : "prod");
@@ -28,5 +123,3 @@ export function saveDataToFile(data:any, fileName:string, mimeType:string) {
     window.URL.revokeObjectURL(url);
   }, 1000);
 }
-
-
