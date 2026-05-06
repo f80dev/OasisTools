@@ -4,5 +4,12 @@
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"
+  },
+
+  "/doc": {
+    "target": "https://localhost:8000",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
 }

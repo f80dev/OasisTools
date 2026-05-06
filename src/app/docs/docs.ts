@@ -56,6 +56,18 @@ export class Docs implements OnInit {
     return rc
   }
 
+  async api_doc(url:string,data:any,message="",year=2025) {
+    url="/doc"+url
+    this.message=message
+    let rc: any =[]
+    try{
+      rc = await firstValueFrom(this.http.post(url, data,{headers: get_headers()}));
+    }catch (e){
+
+    }
+    return rc
+  }
+
   async get_cursus() {
     return await this.api('modules?subclass_detail=false',"chargement des cursus")
     }
@@ -193,7 +205,7 @@ export class Docs implements OnInit {
 
 
 
-  async generate_doc(to_save=true) {
+  async generate_doc_from_frontend(to_save=true) {
     if (!this.template || !this.student_select || this.student_select.value.length === 0) {
       alert("Veuillez sélectionner un fichier et au moins un étudiant.");
       return;
@@ -219,6 +231,47 @@ export class Docs implements OnInit {
         //Voir la documentation : https://templatedocs.io/docs/intro
         this.message="Production du document"
         const doc=await new TemplateHandler().process(templateBuffer,rc)
+
+        saveDataToFile(
+          doc,
+          this.template_name+"_"+student.LNAME+"_"+student.FNAME+".docx",
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        )
+        //if(to_save)saveAs(new Blob([out.buffer]), `document_${student.LNAME}_${student.FNAME}.docx`);
+        this.clear_form()
+      } catch (error) {
+        console.error("Erreur lors de la génération du document pour " + student.FNAME, error);
+      }
+    }
+    this.message=""
+  }
+
+  async generate_doc(to_save=true) {
+    if (!this.template || !this.student_select || this.student_select.value.length === 0) {
+      alert("Veuillez sélectionner un fichier et au moins un étudiant.");
+      return;
+    }
+
+    const templateBuffer = this.base64ToUint8Array(this.template.split(",")[1])
+
+    for(let student of this.student_select!.value){
+      this.message="Traitement de "+student.FNAME+" "+student.LNAME
+      student=await this.complete_student(student)
+
+      let rc:any={}
+      for(let k in student)
+        rc["STUDENT_"+k]=translate_to_openxml(clear_text(student[k]))
+
+      for(let k in this.selected_cursus)
+        rc["CURSUS_"+k]=translate_to_openxml(clear_text(this.selected_cursus[k]))
+
+      let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
+
+      try {
+
+        //Voir la documentation : https://templatedocs.io/docs/intro
+        this.message="Production du document"
+        const doc=await this.api_doc("/merge-docx",{data:rc,template:templateBuffer})
 
         saveDataToFile(
           doc,
