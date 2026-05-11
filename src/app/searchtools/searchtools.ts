@@ -15,26 +15,24 @@ import {get_headers} from '../../tools';
 })
 export class Searchtools implements OnInit {
 
-
   async ngOnInit() {
     try {
-      // La permission 'clipboard-read' peut nécessiter une assertion de type
-      const permissionStatus = await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
+      const permissionStatus = await navigator.permissions.query(
+        { name: 'clipboard-read' as PermissionName }
+      );
 
-      // Gérer les changements de permission
       permissionStatus.onchange = () => {
         console.log(`L'état de la permission du presse-papiers est passé à ${permissionStatus.state}`);
       };
 
-      // Vérifier l'état initial
       if (permissionStatus.state === 'denied') {
         alert('L\'accès au presse-papiers a été refusé. Veuillez l\'autoriser dans les paramètres de votre navigateur.');
       }
+
     } catch (err) {
       console.error('Impossible de demander la permission pour le presse-papiers : ', err);
     }
   }
-
 
 
   private http = inject(HttpClient);
@@ -59,4 +57,6 @@ export class Searchtools implements OnInit {
     }
     await firstValueFrom(this.http.get("http://localhost:5002/api/quit", {  headers:get_headers() }))
   }
+
+
 }

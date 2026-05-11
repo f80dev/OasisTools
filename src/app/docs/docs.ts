@@ -1,14 +1,13 @@
 import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {clear_text, get_headers, get_properties, saveDataToFile, translate_to_openxml} from '../../tools';
+import {clear_text, get_headers,  saveDataToFile, translate_to_openxml} from '../../tools';
 import {CommonModule} from "@angular/common";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatSelect, MatSelectChange, MatSelectModule} from "@angular/material/select";
 import {MatButtonModule} from "@angular/material/button";
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {TemplateHandler} from 'easy-template-x';
-import {OfficeParserAST} from 'officeparser';
 
 @Component({
   selector: 'app-docs',
@@ -56,17 +55,19 @@ export class Docs implements OnInit {
     return rc
   }
 
-  async api_doc(url:string,data:any,message="",year=2025) {
-    url="/doc"+url
+  async api_doc(url:string,data:any,message="") {
+    url="http://127.0.0.1:8000/doc"+url
     this.message=message
     let rc: any =[]
     try{
-      rc = await firstValueFrom(this.http.post(url, data,{headers: get_headers()}));
+      rc = await firstValueFrom(this.http.post(url, data));
     }catch (e){
-
+      console.log(rc)
     }
     return rc
   }
+
+
 
   async get_cursus() {
     return await this.api('modules?subclass_detail=false',"chargement des cursus")
@@ -252,7 +253,7 @@ export class Docs implements OnInit {
       return;
     }
 
-    const templateBuffer = this.base64ToUint8Array(this.template.split(",")[1])
+    const templateBuffer:string = this.template.split(",")[1]
 
     for(let student of this.student_select!.value){
       this.message="Traitement de "+student.FNAME+" "+student.LNAME
@@ -271,7 +272,7 @@ export class Docs implements OnInit {
 
         //Voir la documentation : https://templatedocs.io/docs/intro
         this.message="Production du document"
-        const doc=await this.api_doc("/merge-docx",{data:rc,template:templateBuffer})
+        const doc=await this.api_doc("/merge-docx/",{data:rc,template:templateBuffer})
 
         saveDataToFile(
           doc,
