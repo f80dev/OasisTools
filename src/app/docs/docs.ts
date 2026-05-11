@@ -56,9 +56,9 @@ export class Docs implements OnInit {
   }
 
   async api_doc(url:string,data:any,message="") {
-    url="http://127.0.0.1:8000/doc"+url
+    url="/api/doc"+url
     this.message=message
-    let rc: any =[]
+    let rc: any
     try{
       rc = await firstValueFrom(this.http.post(url, data));
     }catch (e){
@@ -225,7 +225,7 @@ export class Docs implements OnInit {
       for(let k in this.selected_cursus)
         rc["CURSUS_"+k]=translate_to_openxml(clear_text(this.selected_cursus[k]))
 
-      let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
+      //let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
 
       try {
 
@@ -247,6 +247,30 @@ export class Docs implements OnInit {
     this.message=""
   }
 
+  saveBase64AsDocx(base64Data: string, fileName: string) {
+    const byteCharacters = atob(base64Data);
+    const byteNumbers = new Array(byteCharacters.length);
+
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+
+    // 3. Créer le Blob avec le type MIME Word
+    const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+
+    // 4. Déclencher le téléchargement
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName.endsWith('.docx') ? fileName : `${fileName}.docx`;
+    link.click();
+
+    // Nettoyage mémoire
+    URL.revokeObjectURL(link.href);
+  };
+
+
   async generate_doc(to_save=true) {
     if (!this.template || !this.student_select || this.student_select.value.length === 0) {
       alert("Veuillez sélectionner un fichier et au moins un étudiant.");
@@ -257,7 +281,15 @@ export class Docs implements OnInit {
 
     for(let student of this.student_select!.value){
       this.message="Traitement de "+student.FNAME+" "+student.LNAME
-      student=await this.complete_student(student)
+
+      let cache=localStorage.getItem(this.selected_cursus+"_"+student.LNAME)
+      if(!cache){
+        student=await this.complete_student(student)
+        localStorage.setItem(this.selected_cursus+"_"+student.LNAME,JSON.stringify(student))
+      }else{
+        student=JSON.parse(cache)
+      }
+
 
       let rc:any={}
       for(let k in student)
@@ -274,11 +306,8 @@ export class Docs implements OnInit {
         this.message="Production du document"
         const doc=await this.api_doc("/merge-docx/",{data:rc,template:templateBuffer})
 
-        saveDataToFile(
-          doc,
-          this.template_name+"_"+student.LNAME+"_"+student.FNAME+".docx",
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        )
+        this.saveBase64AsDocx(doc.document_base64,this.template_name+"_"+student.LNAME+"_"+student.FNAME+".docx")
+
         //if(to_save)saveAs(new Blob([out.buffer]), `document_${student.LNAME}_${student.FNAME}.docx`);
         this.clear_form()
       } catch (error) {

@@ -1,6 +1,13 @@
 {
-  "/api": {
-    "target": "https://ent.cnsmdp.fr",
+  "/api/v2/": {
+    "target": "https://testcnsmdp.scolasis.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+
+  "/api/doc": {
+    "target": "http://127.0.0.1:8000",
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"
