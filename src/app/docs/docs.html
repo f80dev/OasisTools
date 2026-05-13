@@ -7,7 +7,7 @@
 
   <mat-form-field class="select-cursus">
     <mat-label>Cursus</mat-label>
-    <mat-select (selectionChange)="on_select_cursus($event)">
+    <mat-select [value]="selected_cursus" (selectionChange)="on_select_cursus($event)">
       <mat-option *ngFor="let item of cursus_list" [value]="item">
         {{item.NAME || item.CURSUS_NAME}}
       </mat-option>
@@ -17,7 +17,7 @@
   <div *ngIf="selected_cursus">
     <mat-form-field class="select-cursus">
       <mat-label>Etudiants</mat-label>
-      <mat-select matNativeControl multiple id="student-select" #studentselect>
+      <mat-select matNativeControl multiple id="student-select" #studentselect [(ngModel)]="selected_students">
         <mat-option *ngFor="let student of student_list" [value]="student">
           {{student.FNAME}} {{student.LNAME}}
         </mat-option>
@@ -38,8 +38,8 @@
     <br><br>
   </div>
 
-  <button *ngIf="template && selected_cursus && student_select && student_select.value && student_select.value.length>0"
-          mat-raised-button (click)="generate_doc(template)">Générer</button>
+  <button *ngIf="template && selected_cursus && selected_students && selected_students.length>0"
+          mat-raised-button (click)="generate_doc()">Générer</button>
 
   <button *ngIf="template && template_name"
           mat-raised-button (click)="clear_doc()">Autre modèle</button>
