@@ -93,6 +93,10 @@ export class Docs implements OnInit {
     return await this.api('modules/'+cursus+'/students',"chargement des étudiants ...")
   }
 
+  async get_student(login:string) {
+    return await this.api('students/'+login,"chargement du detail de l'étudiant ...")
+  }
+
   async get_disciplines(student:string,year:number) {
     return await this.api('students/'+student+'/courses',"Chargement des disciplines ...",year)
   }
@@ -285,9 +289,9 @@ export class Docs implements OnInit {
 
     for(let student of this.selected_students){
       this.message="Traitement de "+student.FNAME+" "+student.LNAME
-
       let cache=localStorage.getItem(this.selected_cursus+"_"+student.LNAME)
       if(!cache){
+        student=await this.get_student(student.CODE)
         student=await this.complete_student(student)
         localStorage.setItem(this.selected_cursus+"_"+student.LNAME,JSON.stringify(student))
       }else{
