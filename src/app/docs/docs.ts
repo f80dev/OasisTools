@@ -320,8 +320,6 @@ export class Docs implements OnInit {
           this.snackbar.open("Probleme avec le template","Ok")
         }
 
-
-
       } catch (error) {
         console.error("Erreur lors de la génération du document pour " + student.FNAME, error);
       }
