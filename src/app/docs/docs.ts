@@ -354,4 +354,10 @@ export class Docs implements OnInit {
     this.template=undefined
   }
 
+  protected select_all_students() {
+    if(this.student_list){
+      this.selected_students=this.student_list
+      this.load_data()
+    }
+  }
 }
