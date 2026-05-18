@@ -8,8 +8,10 @@ content {
 
 sidenav-container {
   height: 100vh;
+  width: 100vw;
 }
 
 .mainform {
   padding: 10px;
+  height: 100vh;
 }

@@ -13,43 +13,19 @@ body {
   background-color: rgba(0, 0, 0, 0.95);
   z-index: 9999;
   display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.splash-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 90vw;
-  max-height: 90vh;
-}
 
 .splash-image {
-  max-width: 100%;
-  max-height: 75vh;
-  object-fit: contain;
+  width: 100%;
+  object-fit: cover;
   border-radius: 8px;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
-.splash-placeholder {
-  width: 60vw;
-  height: 60vh;
-  max-width: 800px;
-  max-height: 500px;
-  border: 3px dashed #666;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #888;
-  font-family: Arial, sans-serif;
-  font-size: 18px;
-}
-
 .splash-actions {
   margin-top: 20px;
+  height: 100vh;
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
@@ -57,13 +33,15 @@ body {
 }
 
 .splash-btn {
-  background-color: #424242;
-  color: white;
   border: none;
   padding: 12px 24px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 15px;
+  display: block;
+  position: fixed;
+  left:45vw;
+  top:80vh;
   font-family: Arial, sans-serif;
   transition: background-color 0.2s ease;
 }
@@ -120,4 +98,18 @@ p {
 
 .drop-zone button:hover {
   background-color: #3700B3;
+}
+
+.apptitle {
+  top: 25vh;
+  left:15vw;
+  font-weight: bolder;
+  position: fixed;
+  display: block;
+  font-size: 60px;
+  color:white;
+}
+
+.content {
+  height: 90vh;
 }

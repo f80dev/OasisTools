@@ -1,19 +1,9 @@
 <!-- Splash Screen -->
-<div *ngIf="splash_visible" class="splash-overlay">
-  <div class="splash-content">
-    <img *ngIf="splash_image" [src]="splash_image" class="splash-image" alt="Splash">
-    <div *ngIf="!splash_image" class="splash-placeholder">
-      <p>Aucune image de splash</p>
-    </div>
-    <div class="splash-actions">
-      <label for="splash-file-input" class="splash-btn">
-        {{ splash_image ? 'Changer l\'image' : 'Charger une image' }}
-      </label>
-      <input type="file" id="splash-file-input" accept="image/*" (change)="on_splash_file_selected($event)" style="display:none">
-      <button *ngIf="splash_image" class="splash-btn" (click)="clear_splash()">Supprimer</button>
-      <button class="splash-btn splash-btn-primary" (click)="close_splash()">Continuer</button>
-    </div>
+<div *ngIf="splash_image" class="splash-overlay">
+  <div class="apptitle">
+    OASIS Tools
   </div>
+  <img [src]="splash_image" class="splash-image" alt="Splash">
 </div>
 
 <mat-toolbar color="primary">
@@ -24,11 +14,14 @@
 </mat-toolbar>
 
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #sidenav mode="side" position="start">
-    <mat-nav-list style="height: 100vh;">
+  <mat-sidenav #sidenav mode="over" position="start">
+    <mat-nav-list style="height: 100vh;" (click)="sidenav.close()">
       <a mat-list-item routerLink="/">Accueil</a>
       <a mat-list-item routerLink="/evals">Évaluer des disciplines</a>
       <a mat-list-item routerLink="/search">Recherche des profils</a>
+      <a mat-list-item routerLink="/docs">Imprimer des documents</a>
+      <br>
+      <a mat-list-item routerLink="/about">A propos</a>
     </mat-nav-list>
   </mat-sidenav>
 

@@ -179,7 +179,14 @@ export class Docs implements OnInit {
       let d=await this.get_disciplines(student.CODE,y) as any[]
       for(let i=0;i<d.length;i++){
         d[i]=this.complete_discipline(d[i],this.selected_cursus.CODE,y)
-        for(let e of await this.api("courses/"+d[i].CODE+"/assessments","Récupération des résultats ...",y)){
+        d[i].FR_OBJECTIVE=""
+        d[i].EN_OBJECTIVE=""
+        d[i].FR_REQUISIT=""
+        d[i].FR_EXAM=""
+        d[i].EN_REQUISIT=""
+        d[i].REWARD_EN=""
+
+        for(let e of await this.api("courses/"+d[i].CODE+"/assessments","Récupération des résultats de "+student.FNAME,y)){
           if(e.STUDENT.CODE==student.CODE){
             d[i].MENTION=e.MENTION.LABEL
             d[i].VALIDATE=e.STATUS.LABEL

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import {Component, OnInit, signal} from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -25,16 +25,12 @@ import {CommonModule} from "@angular/common";
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
-  protected readonly title = signal('OasisTools');
-  public splash_image: string | undefined;
-  public splash_visible = true;
+export class App implements OnInit {
+  protected readonly title = signal('OASIS Tools');
+  public splash_image: string ="splash.png"
 
   async ngOnInit() {
-    const saved = localStorage.getItem("splash_image");
-    if (saved) {
-      this.splash_image = saved;
-    }
+    setTimeout(()=>{this.splash_image=""},2000)
   }
 
   on_splash_file_selected(event: Event) {
@@ -50,12 +46,7 @@ export class App {
     }
   }
 
-  close_splash() {
-    this.splash_visible = false;
-  }
 
-  clear_splash() {
-    this.splash_image = undefined;
-    localStorage.removeItem("splash_image");
-  }
+
+
 }
