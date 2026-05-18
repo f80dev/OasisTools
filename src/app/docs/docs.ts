@@ -31,6 +31,7 @@ export class Docs implements OnInit {
   public template: any;
   private cursus_disciplines:any
   public template_name: string=""
+  private data:any={}
 
   async ngOnInit()  {
     const json_cursus=localStorage.getItem("cursus")
@@ -38,9 +39,14 @@ export class Docs implements OnInit {
       this.cursus_list=JSON.parse(json_cursus)
     }else{
       this.cursus_list=await this.get_cursus() as any[]
+      for(let c of this.cursus_list){
+        c.DESCRIPTION=""
+        c.OBJECTIVES_AND_CONTENT=""
+        c.DESCRIPTION_EN=""
+        c.OBJECTIVES_AND_CONTENT_EN=""
+      }
       localStorage.setItem("cursus",JSON.stringify(this.cursus_list))
     }
-
 
     //Sélectionne le premier cursus
     if (this.cursus_list && this.cursus_list.length > 0) {
@@ -114,6 +120,7 @@ export class Docs implements OnInit {
     } else {
       this.selected_students = [];
     }
+    this.load_data()
     this.message=""
     // this.templates=[]
     // for (let t of await get_properties()){
@@ -279,50 +286,66 @@ export class Docs implements OnInit {
   };
 
 
+
+  async load_data() {
+    console.log("Chargement des datas ")
+
+
+    for (let student of this.selected_students) {
+      this.message = "Traitement de " + student.FNAME + " " + student.LNAME
+
+      if(!this.data.hasOwnProperty(student.CODE)){
+        let cache = localStorage.getItem(this.selected_cursus + "_" + student.LNAME)
+        if (!cache) {
+          student = await this.get_student(student.CODE)
+          student = await this.complete_student(student)
+          localStorage.setItem(this.selected_cursus + "_" + student.LNAME, JSON.stringify(student))
+        } else {
+          student = JSON.parse(cache)
+        }
+
+        let obj:any={}
+        for (let k in student)
+            obj["STUDENT_" + k] = translate_to_openxml(clear_text(student[k]))
+
+
+        for (let k in this.selected_cursus)
+            obj["CURSUS_" + k] = translate_to_openxml(clear_text(this.selected_cursus[k]))
+
+        //let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
+
+        this.data[student.CODE]=obj
+      }
+      this.message=""
+    }
+
+  }
+
+
   async generate_doc() {
+
     if (!this.template || !this.selected_students || this.selected_students.length === 0) {
       alert("Veuillez sélectionner un fichier et au moins un étudiant.");
       return;
     }
+    await this.load_data()
 
-    const templateBuffer:string = this.template.split(",")[1]
+    for (let login in this.data){
 
-    for(let student of this.selected_students){
-      this.message="Traitement de "+student.FNAME+" "+student.LNAME
-      let cache=localStorage.getItem(this.selected_cursus+"_"+student.LNAME)
-      if(!cache){
-        student=await this.get_student(student.CODE)
-        student=await this.complete_student(student)
-        localStorage.setItem(this.selected_cursus+"_"+student.LNAME,JSON.stringify(student))
-      }else{
-        student=JSON.parse(cache)
-      }
-
-
-      let rc:any={}
-      for(let k in student)
-        rc["STUDENT_"+k]=translate_to_openxml(clear_text(student[k]))
-
-      for(let k in this.selected_cursus)
-        rc["CURSUS_"+k]=translate_to_openxml(clear_text(this.selected_cursus[k]))
-
-      let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
-
-      try {
+        let student=this.data[login]
+        const templateBuffer: string = this.template.split(",")[1]
 
         //Voir la documentation : https://templatedocs.io/docs/intro
         this.message="Production du document"
 
         try{
-          const doc:any=await this.api_doc("/merge-docx/",{data:rc,template:templateBuffer})
-          this.saveBase64AsDocx(doc.document_base64,this.template_name+"_"+student.LNAME+"_"+student.FNAME+".docx")
+          const doc:any=await this.api_doc("/merge-docx/",{data: this.data[login],template:templateBuffer})
+          this.saveBase64AsDocx(doc.document_base64,this.template_name+"_"+student.STUDENT_LNAME+"_"+student.STUDENT_FNAME+".docx")
         }catch (e){
           this.snackbar.open("Probleme avec le template","Ok")
         }
 
-      } catch (error) {
-        console.error("Erreur lors de la génération du document pour " + student.FNAME, error);
-      }
+
     }
     this.message=""
   }
@@ -330,4 +353,5 @@ export class Docs implements OnInit {
   protected clear_doc() {
     this.template=undefined
   }
+
 }

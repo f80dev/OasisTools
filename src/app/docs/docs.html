@@ -17,7 +17,7 @@
   <div *ngIf="selected_cursus">
     <mat-form-field class="select-cursus">
       <mat-label>Etudiants</mat-label>
-      <mat-select matNativeControl multiple id="student-select" #studentselect [(ngModel)]="selected_students">
+      <mat-select matNativeControl multiple id="student-select" #studentselect [(ngModel)]="selected_students" (selectionChange)="load_data()">
         <mat-option *ngFor="let student of student_list" [value]="student">
           {{student.FNAME}} {{student.LNAME}}
         </mat-option>
@@ -38,8 +38,10 @@
     <br><br>
   </div>
 
-  <button *ngIf="template && selected_cursus && selected_students && selected_students.length>0"
-          mat-raised-button (click)="generate_doc()">Générer</button>
+  <button *ngIf="template && selected_cursus && selected_students && selected_students.length>0 && message==''"
+          mat-raised-button (click)="generate_doc()" color="primary">
+    Générer
+  </button>
 
   <button *ngIf="template && template_name"
           mat-raised-button (click)="clear_doc()">Autre modèle</button>
