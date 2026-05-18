@@ -32,7 +32,6 @@ export class Docs implements OnInit {
   private cursus_disciplines:any
   public template_name: string=""
   private data:any={}
-  public selected_format: string = "docx";
 
   async ngOnInit()  {
     const json_cursus=localStorage.getItem("cursus")
@@ -355,85 +354,10 @@ export class Docs implements OnInit {
     this.template=undefined
   }
 
-  select_all_students() {
-    this.selected_students = this.student_list ? [...this.student_list] : [];
-  }
-
-  deselect_all_students() {
-    this.selected_students = [];
-  }
-
-  async generate_doc() {
-    if (!this.template || !this.selected_students || this.selected_students.length === 0) {
-      alert("Veuillez sélectionner un fichier et au moins un étudiant.");
-      return;
+  protected select_all_students() {
+    if(this.student_list){
+      this.selected_students=this.student_list
+      this.load_data()
     }
-
-    const templateBuffer:string = this.template.split(",")[1]
-    const format = this.selected_format;
-
-    for(let student of this.selected_students){
-      this.message="Traitement de "+student.FNAME+" "+student.LNAME
-      let cache=localStorage.getItem(this.selected_cursus+"_"+student.LNAME)
-      if(!cache){
-        student=await this.get_student(student.CODE)
-        student=await this.complete_student(student)
-        localStorage.setItem(this.selected_cursus+"_"+student.LNAME,JSON.stringify(student))
-      }else{
-        student=JSON.parse(cache)
-      }
-
-
-      let rc:any={}
-      for(let k in student)
-        rc["STUDENT_"+k]=translate_to_openxml(clear_text(student[k]))
-
-      for(let k in this.selected_cursus)
-        rc["CURSUS_"+k]=translate_to_openxml(clear_text(this.selected_cursus[k]))
-
-      let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
-
-      try {
-
-        //Voir la documentation : https://templatedocs.io/docs/intro
-        this.message="Production du document"
-
-        try{
-          const doc:any=await this.api_doc("/merge-docx/",{data:rc,template:templateBuffer,format:format})
-          const fileName = this.template_name+"_"+student.LNAME+"_"+student.FNAME+"."+format;
-          if(format==="pdf"){
-            this.saveBase64AsPdf(doc.document_base64, fileName)
-          }else{
-            this.saveBase64AsDocx(doc.document_base64, fileName)
-          }
-        }catch (e){
-          this.snackbar.open("Probleme avec le template","Ok")
-        }
-
-      } catch (error) {
-        console.error("Erreur lors de la génération du document pour " + student.FNAME, error);
-      }
-    }
-    this.message=""
   }
-
-  saveBase64AsPdf(base64Data: string, fileName: string) {
-    const byteCharacters = atob(base64Data);
-    const byteNumbers = new Array(byteCharacters.length);
-
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-
-    const byteArray = new Uint8Array(byteNumbers);
-
-    const blob = new Blob([byteArray], { type: 'application/pdf' });
-
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
-    link.click();
-
-    URL.revokeObjectURL(link.href);
-  };
 }
