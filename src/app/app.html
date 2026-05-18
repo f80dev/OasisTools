@@ -1,3 +1,21 @@
+<!-- Splash Screen -->
+<div *ngIf="splash_visible" class="splash-overlay">
+  <div class="splash-content">
+    <img *ngIf="splash_image" [src]="splash_image" class="splash-image" alt="Splash">
+    <div *ngIf="!splash_image" class="splash-placeholder">
+      <p>Aucune image de splash</p>
+    </div>
+    <div class="splash-actions">
+      <label for="splash-file-input" class="splash-btn">
+        {{ splash_image ? 'Changer l\'image' : 'Charger une image' }}
+      </label>
+      <input type="file" id="splash-file-input" accept="image/*" (change)="on_splash_file_selected($event)" style="display:none">
+      <button *ngIf="splash_image" class="splash-btn" (click)="clear_splash()">Supprimer</button>
+      <button class="splash-btn splash-btn-primary" (click)="close_splash()">Continuer</button>
+    </div>
+  </div>
+</div>
+
 <mat-toolbar color="primary">
   <button mat-icon-button (click)="sidenav.toggle()">
     <mat-icon>menu</mat-icon>

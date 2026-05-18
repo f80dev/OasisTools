@@ -3,6 +3,83 @@ body {
   color: #fff;
 }
 
+/* Splash Screen */
+.splash-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.splash-image {
+  max-width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.splash-placeholder {
+  width: 60vw;
+  height: 60vh;
+  max-width: 800px;
+  max-height: 500px;
+  border: 3px dashed #666;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+}
+
+.splash-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.splash-btn {
+  background-color: #424242;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+  transition: background-color 0.2s ease;
+}
+
+.splash-btn:hover {
+  background-color: #616161;
+}
+
+.splash-btn-primary {
+  background-color: #6200EE;
+}
+
+.splash-btn-primary:hover {
+  background-color: #3700B3;
+}
+
 .drop-zone {
   border: 2px dashed #666;
   border-radius: 10px;

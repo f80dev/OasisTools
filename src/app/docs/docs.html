@@ -23,6 +23,18 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <button mat-raised-button (click)="select_all_students()" style="margin-left: 10px;">Tout sélectionner</button>
+    <button mat-raised-button (click)="deselect_all_students()" style="margin-left: 5px;">Tout désélectionner</button>
+
+    <br><br>
+
+    <mat-form-field class="select-cursus">
+      <mat-label>Format</mat-label>
+      <mat-select [(ngModel)]="selected_format">
+        <mat-option value="docx">DOCX</mat-option>
+        <mat-option value="pdf">PDF</mat-option>
+      </mat-select>
+    </mat-form-field>
 
     <br>
 
