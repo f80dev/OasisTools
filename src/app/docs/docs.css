@@ -3,6 +3,10 @@
   max-width: 600px;
 }
 
+.select-format {
+  width: 120px;
+}
+
 .select-file {
   width: 40%;
 }

@@ -9,11 +9,12 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {FormsModule} from "@angular/forms";
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatIcon} from '@angular/material/icon';
 
 @Component({
   selector: 'app-docs',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatSelectModule, MatButtonModule, MatProgressSpinner, FormsModule],
+  imports: [CommonModule, MatFormFieldModule, MatSelectModule, MatButtonModule, MatProgressSpinner, FormsModule, MatIcon],
   templateUrl: './docs.html',
   styleUrl: './docs.css',
 })
@@ -268,6 +269,7 @@ export class Docs implements OnInit {
   //   }
   //   this.message=""
   // }
+  protected selected_format: string="docx"
 
   saveBase64AsDocx(base64Data: string, fileName: string) {
     const byteCharacters = atob(base64Data);
@@ -346,7 +348,7 @@ export class Docs implements OnInit {
         this.message="Production du document"
 
         try{
-          const doc:any=await this.api_doc("/merge-docx/",{data: this.data[login],template:templateBuffer})
+          const doc:any=await this.api_doc("/merge-docx/",{format:this.selected_format,data: this.data[login],template:templateBuffer})
           this.saveBase64AsDocx(doc.document_base64,this.template_name+"_"+student.STUDENT_LNAME+"_"+student.STUDENT_FNAME+".docx")
         }catch (e){
           this.snackbar.open("Probleme avec le template","Ok")
@@ -359,6 +361,7 @@ export class Docs implements OnInit {
 
   protected clear_doc() {
     this.template=undefined
+    this.template_name=""
   }
 
   protected select_all_students() {

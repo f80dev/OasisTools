@@ -39,8 +39,14 @@
       <input type="file" id="docx-file-input" accept=".docx" (change)="on_file_selected($event)">
     </div>
 
-    <div *ngIf="template_name!=''">
-      <span style="opacity: 0.5">Modèle sélectionné:</span> {{template_name.replace(".docx","")}}
+    <div *ngIf="template_name!=''" style="display: flex;">
+      <span style="opacity: 0.5">Modèle sélectionné:&nbsp;</span> {{template_name.replace(".docx","")}}
+      <button *ngIf="template && template_name"
+              style="margin-top: -10px;margin-left: 10px;"
+              mat-icon-button (click)="clear_doc()">
+        <mat-icon>clear</mat-icon>
+      </button>
+
     </div>
 
     <br><br>
@@ -53,7 +59,12 @@
     Générer
   </button>
 
-  <button *ngIf="template && template_name"
-          mat-raised-button (click)="clear_doc()">Autre modèle</button>
+  <mat-form-field *ngIf="template" class="select-format">
+    <mat-label>Format</mat-label>
+    <mat-select matNativeControl id="format" [(ngModel)]="selected_format">
+      <mat-option value="docx">Word</mat-option>
+      <mat-option value="pdf">PDF</mat-option>
+    </mat-select>
+  </mat-form-field>
 
 </div>
