@@ -1,13 +1,20 @@
 {
-  "/api/v2/": {
+  "/api/v2": {
     "target": "https://testcnsmdp.scolasis.com",
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"
   },
 
+  "/local/doc": {
+    "target": "http://127.0.0.1:8910",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+
   "/api/doc": {
-    "target": "http://127.0.0.1:8000",
+    "target": "https://apidoc-971981378820.europe-west1.run.app",
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"

@@ -124,12 +124,24 @@ export class Evals implements OnInit {
     this.resp = [];
 
     if (files && files.length > 0) {
-      const excelFiles = Array.from(files).filter(file =>
-        file.type === 'application/vnd.ms-excel' ||
-        file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-        file.name.endsWith('.xls') ||
-        file.name.endsWith('.xlsx')
-      );
+      // Validate file types to prevent malicious uploads
+      const allowedTypes = [
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      ];
+      const allowedExtensions = ['.xls', '.xlsx'];
+
+      const excelFiles = Array.from(files).filter(file => {
+        const hasValidType = allowedTypes.includes(file.type);
+        const hasValidExtension = allowedExtensions.some(ext =>
+          file.name.toLowerCase().endsWith(ext)
+        );
+        // Also validate file name for path traversal attempts
+        const hasValidName = !file.name.includes('..') &&
+          !file.name.includes('/') &&
+          !file.name.includes('\\');
+        return (hasValidType || hasValidExtension) && hasValidName;
+      });
 
       if (excelFiles.length > 0) {
         this.message = `Selected ${excelFiles.length} Excel file(s). First file: ${excelFiles[0].name}`;
@@ -175,7 +187,13 @@ export class Evals implements OnInit {
             }
           }catch (e:any){
             if (!this.isStopped) {
-              const errorMessage = e?.error?.error || e?.message || "An unknown error occurred";
+              // Sanitize error messages to prevent XSS
+              const sanitizeError = (msg: string): string => {
+                if (!msg || typeof msg !== 'string') return 'An unknown error occurred';
+                // Remove HTML tags and limit length
+                return msg.replace(/<[^>]*>/g, '').substring(0, 200);
+              };
+              const errorMessage = sanitizeError(e?.error?.error || e?.message || "An unknown error occurred");
               this.resp.push({...row, result:"error",message: errorMessage})
               if (this.stopOnError) {
                 this.isStopped = true;

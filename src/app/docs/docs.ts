@@ -71,7 +71,9 @@ export class Docs implements OnInit {
     return rc
   }
 
+
   async api_doc(url:string,data:any,message="") {
+    //en local
     url="/api/doc"+url
     this.message=message
     return await firstValueFrom(this.http.post(url, data));
@@ -218,13 +220,23 @@ export class Docs implements OnInit {
 
 
   private base64ToUint8Array(base64: string) {
-    const binary_string = window.atob(base64);
-    const len = binary_string.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binary_string.charCodeAt(i);
+    // Validate base64 input to prevent XSS attacks
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(base64)) {
+      console.error('Invalid base64 input detected');
+      return null;
     }
-    return bytes.buffer;
+    try {
+      const binary_string = window.atob(base64);
+      const len = binary_string.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+      }
+      return bytes.buffer;
+    } catch (e) {
+      console.error('Base64 decoding error:', e);
+      return null;
+    }
   }
 
 
@@ -272,26 +284,35 @@ export class Docs implements OnInit {
   protected selected_format: string="docx"
 
   saveBase64AsDocx(base64Data: string, fileName: string) {
-    const byteCharacters = atob(base64Data);
-    const byteNumbers = new Array(byteCharacters.length);
-
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    // Validate base64 input to prevent XSS attacks
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(base64Data)) {
+      console.error('Invalid base64 input detected');
+      return;
     }
+    try {
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
 
-    const byteArray = new Uint8Array(byteNumbers);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
 
-    // 3. Créer le Blob avec le type MIME Word
-    const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const byteArray = new Uint8Array(byteNumbers);
 
-    // 4. Déclencher le téléchargement
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName.endsWith('.docx') ? fileName : `${fileName}.docx`;
-    link.click();
+      // 3. Créer le Blob avec le type MIME Word
+      const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 
-    // Nettoyage mémoire
-    URL.revokeObjectURL(link.href);
+      // 4. Déclencher le téléchargement
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName.endsWith('.docx') ? fileName : `${fileName}.docx`;
+      link.click();
+
+      // Nettoyage mémoire
+      URL.revokeObjectURL(link.href);
+    } catch (e) {
+      console.error('Error saving DOCX:', e);
+    }
   };
 
 
@@ -348,6 +369,7 @@ export class Docs implements OnInit {
         this.message="Production du document"
 
         try{
+          //appel du service https://console.cloud.google.com/run/detail/europe-west1/apidoc/yaml/view?hl=fr&project=apidoc-496918
           const doc:any=await this.api_doc("/merge-docx/",{format:this.selected_format,data: this.data[login],template:templateBuffer})
           this.saveBase64AsDocx(doc.document_base64,this.template_name+"_"+student.STUDENT_LNAME+"_"+student.STUDENT_FNAME+".docx")
         }catch (e){

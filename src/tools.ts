@@ -140,6 +140,56 @@ export function saveDataToFile(data:any, fileName:string, mimeType:string) {
   }, 1000);
 }
 
+// Simple obfuscation for localStorage data - Base64 encoding with prefix
+// Note: This provides NO cryptographic security, just makes data less readable in localStorage
+const OBFUSCATION_PREFIX = 'OBS:';
+
+export function obfuscateData(data: string): string {
+  if (!data) return data;
+  try {
+    // Simple Base64 encoding with prefix for identification
+    return OBFUSCATION_PREFIX + btoa(data);
+  } catch (e) {
+    console.error('Obfuscation error:', e);
+    return data;
+  }
+}
+
+export function deobfuscateData(obfuscatedData: string): string {
+  if (!obfuscatedData) return obfuscatedData;
+  try {
+    if (!obfuscatedData.startsWith(OBFUSCATION_PREFIX)) {
+      return obfuscatedData;
+    }
+    const encoded = obfuscatedData.substring(OBFUSCATION_PREFIX.length);
+    return atob(encoded);
+  } catch (e) {
+    console.error('Deobfuscation error:', e);
+    return obfuscatedData;
+  }
+}
+
+export function setSecureItem(key: string, value: any): void {
+  try {
+    const jsonStr = JSON.stringify(value);
+    localStorage.setItem(key, obfuscateData(jsonStr));
+  } catch (e) {
+    console.error('Error saving to localStorage:', e);
+  }
+}
+
+export function getSecureItem(key: string): any {
+  try {
+    const obfuscatedData = localStorage.getItem(key);
+    if (!obfuscatedData) return null;
+    const deobfuscated = deobfuscateData(obfuscatedData);
+    return JSON.parse(deobfuscated);
+  } catch (e) {
+    console.error('Error reading from localStorage:', e);
+    return null;
+  }
+}
+
 
 
 export async function get_properties_old(files:string[]=["template.docx"]) {
