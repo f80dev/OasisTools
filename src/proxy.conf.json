@@ -6,14 +6,14 @@
     "logLevel": "debug"
   },
 
-  "/old/api/doc": {
-    "target": "https://apidoc-971981378820.europe-west1.run.app",
+  "/api/doc": {
+    "target": "http://localhost:8910",
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"
   },
 
-  "/api/doc": {
+  "/server/api/doc": {
     "target": "https://apidoc.af10.fr",
     "secure": true,
     "changeOrigin": true,

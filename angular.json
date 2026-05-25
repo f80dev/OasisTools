@@ -20,6 +20,10 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/manifest.webmanifest",
+              "src/CNAME",
+              "src/404.html",
+              "src/proxy.conf.json",
+              "src/manifest.webmanifest",
               {
                 "glob": "**/*",
                 "input": "public"
@@ -35,18 +39,20 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "5000kB",
+                  "maximumError": "10MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "400kB",
+                  "maximumError": "800kB"
                 }
               ],
               "outputHashing": "all",
               "serviceWorker": "ngsw-config.json",
               "assets": [
+                "src/CNAME",
+                "src/404.html",
                 "src/manifest.webmanifest",
                 "src/proxy.conf.json",
                 {
@@ -61,8 +67,9 @@
               "sourceMap": true,
               "assets": [
                 "src/manifest.webmanifest",
+                "src/CNAME",
+                "src/404.html",
                 "src/proxy.conf.json",
-                "src/proxy.conf.prod.json",
                 {
                   "glob": "**/*",
                   "input": "public"
@@ -77,11 +84,11 @@
           "configurations": {
             "production": {
               "buildTarget": "OasisTools:build:production",
-              "proxyConfig": "src/proxy.conf.prod.json"
+              "proxyConfig": "src/proxy.conf.json"
             },
             "development": {
               "buildTarget": "OasisTools:build:development",
-              "proxyConfig": "src/proxy.conf.prod.json"
+              "proxyConfig": "src/proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

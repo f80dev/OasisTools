@@ -317,7 +317,7 @@ export class Docs implements OnInit {
 
 
 
-  async load_data() {
+  async load_data(with_disciplines=true) {
     console.log("Chargement des datas ")
 
 
@@ -328,7 +328,8 @@ export class Docs implements OnInit {
         let cache = localStorage.getItem(this.selected_cursus + "_" + student.LNAME)
         if (!cache) {
           student = await this.get_student(student.CODE)
-          student = await this.complete_student(student)
+          student["images"]={"PHOTO":student["PHOTO"]}
+          if (with_disciplines) student = await this.complete_student(student)
           localStorage.setItem(this.selected_cursus + "_" + student.LNAME, JSON.stringify(student))
         } else {
           student = JSON.parse(cache)
@@ -336,8 +337,9 @@ export class Docs implements OnInit {
 
         let obj:any={}
         for (let k in student)
-            obj["STUDENT_" + k] = translate_to_openxml(clear_text(student[k]))
-
+            if(k!="images"){
+              obj["STUDENT_" + k] = translate_to_openxml(clear_text(student[k]))
+            }
 
         for (let k in this.selected_cursus)
             obj["CURSUS_" + k] = translate_to_openxml(clear_text(this.selected_cursus[k]))

@@ -5,7 +5,6 @@ import { firstValueFrom } from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {MatButton} from '@angular/material/button';
 import {FormsModule} from "@angular/forms";
-import {API_LOGIN} from '../../secret';
 import {get_headers} from '../../tools';
 
 
@@ -46,7 +45,7 @@ export class Evals implements OnInit {
   }
 
   async loadConfig() {
-    const configFile = this.currentConfig === 'development' ? 'proxy.conf.json' : 'proxy.conf.prod.json';
+    const configFile =  'proxy.conf.json'
     let config = await firstValueFrom(this.http.get<any>(configFile));
     this.proxyTarget = config['/api'].target;
     this.docApiUrl = `${this.proxyTarget}/api/v2/doc`;

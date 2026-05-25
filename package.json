@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "deploy": "ng build && gh-pages -d ./dist/OasisTools/browser --repo https://github.com/f80dev/OasisTools.git -f -t true -b main -m \\\"update from devnet\\\"\"",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
