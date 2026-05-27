@@ -3,17 +3,85 @@ html, body {
   height: 100%;
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #121212;
+}
+
+/* Toolbar */
+.mat-mdc-toolbar {
+  background: #1e1e1e !important;
+  color: #e0e0e0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Sidenav — fully opaque dark */
+.mat-drawer {
+  background: #1e1e1e !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.mat-drawer-container {
+  background: #121212 !important;
 }
 
 /* Cards */
 .mat-mdc-card {
+  background: #1e1e1e !important;
   border-radius: 12px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Form fields */
+/* Form fields — opaque background */
 .mat-mdc-form-field {
   width: 100%;
+}
+
+.mat-mdc-text-field-wrapper {
+  background: #2d2d2d !important;
+}
+
+.mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background: #2d2d2d !important;
+}
+
+/* Select dropdowns — fully opaque */
+.mat-mdc-select {
+  background: #2d2d2d !important;
+}
+
+.mat-mdc-select-panel {
+  background: #2d2d2d !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+.mat-mdc-option {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+.mat-mdc-option:hover:not(.mdc-list-item--disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.mat-mdc-option.mat-mdc-option-active {
+  background: rgba(0, 188, 212, 0.15) !important;
+}
+
+/* Autocomplete — fully opaque */
+.mat-mdc-autocomplete-panel {
+  background: #2d2d2d !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+.mat-mdc-autocomplete-option {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+.mat-mdc-autocomplete-option:hover,
+.mat-mdc-autocomplete-option:focus {
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Buttons */
@@ -26,15 +94,26 @@ html, body {
   border-radius: 0 28px 28px 0;
   margin-right: 8px;
   height: 48px !important;
+  background: transparent !important;
 }
 
 .mat-mdc-list-item:hover {
   background-color: rgba(255, 255, 255, 0.06) !important;
 }
 
+/* Active nav item */
+.mdc-list-item--activated {
+  background-color: rgba(0, 188, 212, 0.15) !important;
+}
+
+/* Nav sidenav header */
+.sidenav-header {
+  background: #1e1e1e !important;
+}
+
 /* Drop zone */
 .drop-zone {
-  border: 2px dashed rgba(255, 255, 255, 0.25);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
   border-radius: 16px;
   padding: 48px 24px;
   text-align: center;
@@ -44,12 +123,12 @@ html, body {
 }
 
 .drop-zone:hover {
-  border-color: var(--mat-sys-primary);
+  border-color: #00bcd4;
   background: rgba(0, 188, 212, 0.06);
 }
 
 .drop-zone.drag-over {
-  border-color: var(--mat-sys-primary);
+  border-color: #00bcd4;
   background: rgba(0, 188, 212, 0.12);
   transform: scale(1.01);
 }
@@ -74,4 +153,86 @@ html, body {
 .page-header p {
   margin: 0;
   opacity: 0.7;
+}
+
+/* Menus / popups — fully opaque */
+.mat-mdc-menu-panel {
+  background: #2d2d2d !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.mat-mdc-menu-item {
+  background: transparent !important;
+  color: #e0e0e0 !important;
+}
+
+.mat-mdc-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Snackbar */
+.mat-mdc-snack-bar-container {
+  background: #2d2d2d !important;
+}
+
+/* Dialog */
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-color: #1e1e1e;
+}
+
+/* Progress bar */
+.mat-mdc-progress-bar {
+  --mdc-linear-progress-active-indicator-color: #00bcd4;
+}
+
+/* Tabs */
+.mat-mdc-tab-group {
+  --mat-tab-header-active-label-text-color: #00bcd4;
+  --mat-tab-header-active-ripple-color: rgba(0, 188, 212, 0.15);
+  --mat-tab-header-inactive-label-text-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Checkbox */
+.mat-mdc-checkbox {
+  --mdc-checkbox-selected-checkmark-color: #fff;
+  --mdc-checkbox-selected-focus-icon-color: #00bcd4;
+  --mdc-checkbox-selected-hover-icon-color: #00bcd4;
+  --mdc-checkbox-selected-icon-color: #00bcd4;
+}
+
+/* Slide toggle */
+.mat-mdc-slide-toggle {
+  --mdc-switch-selected-track-color: rgba(0, 188, 212, 0.5);
+  --mdc-switch-selected-handle-color: #00bcd4;
+  --mdc-switch-selected-hover-track-color: rgba(0, 188, 212, 0.65);
+  --mdc-switch-selected-pressed-track-color: rgba(0, 188, 212, 0.8);
+}
+
+/* Chips */
+.mat-mdc-chip {
+  background: #2d2d2d !important;
+}
+
+/* Tooltips */
+.mat-mdc-tooltip {
+  background: #2d2d2d !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
 }

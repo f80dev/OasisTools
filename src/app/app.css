@@ -16,9 +16,10 @@
   width: 100vw;
 }
 
-/* Sidenav */
+/* Sidenav — fully opaque */
 .app-sidenav {
   min-width: 260px;
+  background: #1e1e1e !important;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
