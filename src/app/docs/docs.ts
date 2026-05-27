@@ -83,8 +83,9 @@ export class Docs implements OnInit {
 
 
   async api_doc(url:string,data:any,message="") {
-    //en local
-    url="/api/doc"+url
+    const settings = JSON.parse(localStorage.getItem('oasis_settings') || '{}');
+    const baseUrl = settings.docApiUrl || 'http://localhost:5002';
+    url = `${baseUrl}/doc${url}`;
     this.message=message
     return await firstValueFrom(this.http.post(url, data));
   }

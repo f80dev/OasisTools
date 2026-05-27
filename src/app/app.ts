@@ -41,6 +41,7 @@ export class App implements OnInit {
     {label: 'Évaluer des disciplines', route: '/evals', icon: 'assignment'},
     {label: 'Recherche des profils', route: '/search', icon: 'person_search'},
     {label: 'Imprimer des documents', route: '/docs', icon: 'description'},
+    {label: 'Préférences', route: '/preferences', icon: 'settings'},
     {label: 'À propos', route: '/about', icon: 'info'},
   ];
 
