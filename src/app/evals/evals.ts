@@ -10,9 +10,6 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatIconModule} from '@angular/material/icon';
 import {FormsModule} from "@angular/forms";
-import {get_headers} from '../../tools';
-
-
 
 @Component({
   selector: 'app-evals',
@@ -38,12 +35,9 @@ export class Evals implements OnInit {
   message: string = '';
   private http = inject(HttpClient);
   resp: any[] = [];
-  proxyTarget: string = '';
-  docApiUrl: string = '';
   isStopped = false;
   stopOnError = true;
   importFirstLineOnly = false;
-  currentConfig: 'development' | 'production' = 'development';
   displayedColumns: string[] = ['course', 'student', 'status', 'mention', 'result', 'message'];
 
   getOkCount(): number {
@@ -55,24 +49,26 @@ export class Evals implements OnInit {
   }
 
   async ngOnInit() {
-    await this.loadConfig();
+    this.loadSettings();
+  }
+
+  loadSettings() {
+    const stored = localStorage.getItem('oasis_settings');
+    if (stored) {
+      const settings = JSON.parse(stored);
+      this.stopOnError = settings.evalStopOnError ?? true;
+      this.importFirstLineOnly = settings.evalImportFirstLineOnly ?? false;
+    }
   }
 
   get_headers_from_proxy() : any {
-    const s: string = (this.currentConfig === 'development' ? "test" : "prod");
-    return get_headers(s)
-  }
-
-  async loadConfig() {
-    const configFile =  'proxy.conf.json'
-    let config = await firstValueFrom(this.http.get<any>(configFile));
-    this.proxyTarget = config['/api'].target;
-    this.docApiUrl = `${this.proxyTarget}/api/v2/doc`;
-  }
-
-  async switchConfig() {
-    this.currentConfig = (this.currentConfig === 'development' ? 'production' : 'development')
-    await this.loadConfig();
+    const stored = localStorage.getItem('oasis_settings');
+    const settings = stored ? JSON.parse(stored) : {};
+    const target = settings.evalProxyTarget || 'http://localhost:5002';
+    return {
+      'x-target': target,
+      'x-proxy': 'eval'
+    };
   }
 
   onDragOver(event: DragEvent): void {

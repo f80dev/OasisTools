@@ -4,9 +4,10 @@
     <p>Configuration de l'application OASIS Tools</p>
   </div>
 
+  <!-- Doc API Card -->
   <mat-card class="prefs-card">
     <mat-card-header>
-      <mat-icon mat-card-avatar>settings</mat-icon>
+      <mat-icon mat-card-avatar>description</mat-icon>
       <mat-card-title>Serveur de documents</mat-card-title>
       <mat-card-subtitle>URL de l'API Python pour la génération de documents</mat-card-subtitle>
     </mat-card-header>
@@ -27,13 +28,44 @@
     </mat-card-content>
 
     <mat-card-actions>
-      <button mat-button (click)="reset()">
-        <mat-icon>restore</mat-icon>
-        Réinitialiser
-      </button>
       <button mat-button (click)="testConnection()" [disabled]="testing()">
         <mat-icon>wifi</mat-icon>
         Tester
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Eval Config Card -->
+  <mat-card class="prefs-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>assignment</mat-icon>
+      <mat-card-title>Configuration des évaluations</mat-card-title>
+      <mat-card-subtitle>Proxy et options d'import</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="url-field">
+          <mat-label>Proxy Target</mat-label>
+          <input matInput [(ngModel)]="evalProxyTarget" placeholder="http://localhost:5002">
+          <mat-icon matPrefix>router</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="config-options">
+        <mat-checkbox [(ngModel)]="evalStopOnError">
+          Arrêter à la première erreur
+        </mat-checkbox>
+        <mat-checkbox [(ngModel)]="evalImportFirstLineOnly">
+          Importer première ligne uniquement
+        </mat-checkbox>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-button (click)="reset()">
+        <mat-icon>restore</mat-icon>
+        Réinitialiser
       </button>
       <button mat-raised-button color="primary" (click)="save()">
         <mat-icon>save</mat-icon>

@@ -4,46 +4,6 @@
     <p>Import batch d'évaluations depuis un fichier Excel OASIS</p>
   </div>
 
-  <!-- Config Card -->
-  <mat-card class="config-card">
-    <mat-card-header>
-      <mat-icon mat-card-avatar>settings</mat-icon>
-      <mat-card-title>Configuration</mat-card-title>
-      <mat-card-subtitle>Proxy et mode d'import</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      <div class="config-row">
-        <div class="config-item">
-          <span class="config-label">Proxy Target</span>
-          <span class="config-value">{{ proxyTarget }}</span>
-        </div>
-        <div class="config-item">
-          <a [href]="docApiUrl" target="_blank" class="config-link">Doc API ↗</a>
-        </div>
-      </div>
-
-      <div class="config-row">
-        <button mat-stroked-button (click)="switchConfig()" [class.active-config]="currentConfig === 'development'">
-          <mat-icon>code</mat-icon>
-          Dev
-        </button>
-        <button mat-stroked-button (click)="switchConfig()" [class.active-config]="currentConfig === 'production'">
-          <mat-icon>cloud</mat-icon>
-          Prod
-        </button>
-        <span class="config-mode-badge" [class.prod]="currentConfig === 'production'">
-          {{ currentConfig === 'development' ? 'Mode Développement' : 'Mode Production' }}
-        </span>
-      </div>
-
-      <div class="config-options">
-        <mat-checkbox [(ngModel)]="stopOnError">Arrêter à la première erreur</mat-checkbox>
-        <mat-checkbox [(ngModel)]="importFirstLineOnly">Importer première ligne uniquement</mat-checkbox>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
   <!-- Upload Card -->
   <mat-card class="upload-card" *ngIf="resp.length === 0">
     <mat-card-content>
