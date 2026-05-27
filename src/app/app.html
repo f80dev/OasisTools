@@ -1,33 +1,47 @@
 <!-- Splash Screen -->
 <div *ngIf="splash_image" class="splash-overlay">
-  <div class="apptitle">
-    OASIS Tools
+  <div class="splash-brand">
+    <div class="splash-icon">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1 class="apptitle">OASIS Tools</h1>
   </div>
-  <img [src]="splash_image" class="splash-image" alt="Splash">
+  <img *ngIf="splash_image !== 'splash.png'" [src]="splash_image" class="splash-image" alt="Splash">
 </div>
 
-<mat-toolbar color="primary">
-  <button mat-icon-button (click)="sidenav.toggle()">
+<mat-toolbar color="primary" class="app-toolbar">
+  <button mat-icon-button (click)="sidenav.toggle()" aria-label="Menu">
     <mat-icon>menu</mat-icon>
   </button>
-  <span>{{ title() }}</span>
+  <span class="toolbar-title">{{ title() }}</span>
 </mat-toolbar>
 
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav #sidenav mode="over" position="start">
-    <mat-nav-list style="height: 100vh;" (click)="sidenav.close()">
-      <a mat-list-item routerLink="/">Accueil</a>
-      <a mat-list-item routerLink="/evals">Évaluer des disciplines</a>
-      <a mat-list-item routerLink="/search">Recherche des profils</a>
-      <a mat-list-item routerLink="/docs">Imprimer des documents</a>
-      <br>
-      <a mat-list-item routerLink="/about">A propos</a>
+  <mat-sidenav #sidenav mode="over" position="start" class="app-sidenav">
+    <div class="sidenav-header">
+      <div class="sidenav-logo">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="sidenav-brand">OASIS Tools</span>
+    </div>
+    <mat-nav-list class="sidenav-nav">
+      <a mat-list-item *ngFor="let item of navItems"
+         [routerLink]="item.route"
+         routerLinkActive="active-link"
+         (click)="sidenav.close()">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle>{{ item.label }}</span>
+      </a>
     </mat-nav-list>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <div class="content">
+    <main class="main-content">
       <router-outlet></router-outlet>
-    </div>
+    </main>
   </mat-sidenav-content>
 </mat-sidenav-container>

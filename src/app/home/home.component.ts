@@ -1,16 +1,28 @@
-import { Component, signal, ViewChild, ElementRef, inject } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import {Component, signal, ViewChild, ElementRef, inject} from '@angular/core';
+import {HttpClient, HttpClientModule} from '@angular/common/http';
 import * as XLSX from 'xlsx';
-import { firstValueFrom } from 'rxjs';
-import { JsonPipe, NgForOf, NgIf } from '@angular/common';
-import { MatButton } from '@angular/material/button';
+import {firstValueFrom} from 'rxjs';
+import {JsonPipe, NgIf} from '@angular/common';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatTableModule} from '@angular/material/table';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {get_headers} from '../../tools';
-
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [HttpClientModule, JsonPipe, NgForOf, MatButton],
+  imports: [
+    HttpClientModule,
+    JsonPipe,
+    NgIf,
+    MatButtonModule,
+    MatCardModule,
+    MatTableModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -19,6 +31,16 @@ export class HomeComponent {
   message: string = '';
   private http = inject(HttpClient);
   resp: any[] = [];
+
+  displayedColumns: string[] = ['course', 'student', 'status', 'result', 'message'];
+
+  getOkCount(): number {
+    return this.resp.filter(r => r.result === 'ok').length;
+  }
+
+  getErrorCount(): number {
+    return this.resp.filter(r => r.result === 'error').length;
+  }
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -46,13 +68,14 @@ export class HomeComponent {
       );
 
       if (excelFiles.length > 0) {
-        this.message = `Selected ${excelFiles.length} Excel file(s). First file: ${excelFiles[0].name}`;
+        this.message = `Sélection de ${excelFiles.length} fichier(s) Excel. Fichier : ${excelFiles[0].name}`;
+        this.resp = [];
         excelFiles.forEach(file => this.processExcelFile(file));
       } else {
-        this.message = 'No Excel files selected. Please drop or select Excel files (.xls, .xlsx).';
+        this.message = 'Aucun fichier Excel sélectionné. Formats acceptés : .xls, .xlsx';
       }
     } else {
-      this.message = 'No files selected.';
+      this.message = 'Aucun fichier sélectionné.';
     }
   }
 
@@ -60,17 +83,17 @@ export class HomeComponent {
     const reader = new FileReader();
     reader.onload = async (e: any) => {
       const bstr: string = e.target.result;
-      const workbook = XLSX.read(bstr, { type: 'binary' });
+      const workbook = XLSX.read(bstr, {type: 'binary'});
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      const rows: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const rows: any[] = XLSX.utils.sheet_to_json(worksheet, {header: 1});
       for (let row of rows.slice(1)) {
         if (row[0] && row[1]) {
           try {
             await this.update_from_students_and_course(row[0], row[1], row[3], row[2], row[4]);
-            this.resp.push({ ...row, result: "ok" });
+            this.resp.push({...row, result: "ok"});
           } catch (e: any) {
-            this.resp.push({ ...row, result: "error", message: e.error });
+            this.resp.push({...row, result: "error", message: e.error});
           }
         }
       }
@@ -78,17 +101,9 @@ export class HomeComponent {
     reader.readAsBinaryString(file);
   }
 
-  // get_header(username =API_LOGIN["test"]["username"], password = API_LOGIN["test"]["password"]): any {
-  //   return {
-  //     'accept': 'application/json',
-  //     'Authorization': 'Basic ' + btoa(username + ":" + password),
-  //     'Content-Type': 'application/json'
-  //   };
-  // }
-
   async get_evals(code_course: string, year = 2025): Promise<any> {
     const url = '/api/v2/' + year + '/courses/' + code_course + "/assessments";
-    return firstValueFrom(this.http.get(url, { headers: get_headers() }));
+    return firstValueFrom(this.http.get(url, {headers: get_headers()}));
   }
 
   async update_from_students_and_course(code_course: string, code_student: string, status: string, mention = "", comment = "", year = 2025, update = true) {
@@ -107,13 +122,13 @@ export class HomeComponent {
 
   async update_eval_discipline(code_assessments: string, status: string, mention = "", comment = "", year = 2025) {
     const url = '/api/v2/' + year + '/assessments/' + code_assessments;
-    const body = { "STATUS": status, "MENTION": mention, "COMMENT": comment };
-    return firstValueFrom(this.http.patch(url, body, { headers: get_headers() }));
+    const body = {"STATUS": status, "MENTION": mention, "COMMENT": comment};
+    return firstValueFrom(this.http.patch(url, body, {headers: get_headers()}));
   }
 
   async eval_discipline(code_course: string, code_student: string, status: string, mention = "", comment = "", year = 2025) {
     const url = '/api/v2/' + year + '/assessments';
-    const body = { "CODE_COURSE": code_course, "CODE_STUDENT": code_student, "STATUS": status, "MENTION": mention, "COMMENT": comment };
-    return firstValueFrom(this.http.post(url, body, { headers: get_headers() }));
+    const body = {"CODE_COURSE": code_course, "CODE_STUDENT": code_student, "STATUS": status, "MENTION": mention, "COMMENT": comment};
+    return firstValueFrom(this.http.post(url, body, {headers: get_headers()}));
   }
 }

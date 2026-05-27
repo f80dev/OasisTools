@@ -1,13 +1,92 @@
-<div class="drop-zone" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (click)="fileInput.click()">
-  <p>Drag and drop your Excel files here or click to browse</p>
-  <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)"
-         accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple>
-  <button mat-raised-button>Import Excel Files</button>
+<div class="home-page">
+  <div class="page-header">
+    <h2>Accueil</h2>
+    <p>Import de données élèves depuis un fichier Excel</p>
+  </div>
+
+  <!-- Upload Card -->
+  <mat-card class="upload-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>upload_file</mat-icon>
+      <mat-card-title>Importer un fichier Excel</mat-card-title>
+      <mat-card-subtitle>Formats acceptés : .xls, .xlsx</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="drop-zone" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (click)="fileInput.click()">
+        <mat-icon class="drop-icon">cloud_upload</mat-icon>
+        <p class="drop-text">
+          <strong>Glissez-déposez</strong> votre fichier ici<br>
+          <span class="drop-hint">ou cliquez pour parcourir</span>
+        </p>
+        <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)"
+               accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple>
+        <button mat-raised-button color="primary">
+          <mat-icon>folder_open</mat-icon>
+          Parcourir les fichiers
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Message -->
+  <div *ngIf="message" class="status-message">
+    <mat-icon>info</mat-icon>
+    <span>{{ message }}</span>
+  </div>
+
+  <!-- Results Table -->
+  <mat-card *ngIf="resp.length > 0" class="results-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>fact_check</mat-icon>
+      <mat-card-title>Résultats de l'import</mat-card-title>
+      <mat-card-subtitle>{{ resp.length }} ligne(s) traitée(s)</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="results-summary">
+        <span class="success-count">
+          <mat-icon>check_circle</mat-icon>
+          {{ getOkCount() }} OK
+        </span>
+        <span class="error-count" *ngIf="getErrorCount() > 0">
+          <mat-icon>error</mat-icon>
+          {{ getErrorCount() }} erreur(s)
+        </span>
+      </div>
+
+      <table mat-table [dataSource]="resp" class="results-table">
+        <ng-container matColumnDef="course">
+          <th mat-header-cell *matHeaderCellDef>Code Cours</th>
+          <td mat-cell *matCellDef="let row">{{ row[0] }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="student">
+          <th mat-header-cell *matHeaderCellDef>Code Étudiant</th>
+          <td mat-cell *matCellDef="let row">{{ row[1] }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Statut</th>
+          <td mat-cell *matCellDef="let row">{{ row[3] }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="result">
+          <th mat-header-cell *matHeaderCellDef>Résultat</th>
+          <td mat-cell *matCellDef="let row">
+            <mat-icon *ngIf="row.result === 'ok'" class="result-ok">check_circle</mat-icon>
+            <mat-icon *ngIf="row.result === 'error'" class="result-error">cancel</mat-icon>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="message">
+          <th mat-header-cell *matHeaderCellDef>Message</th>
+          <td mat-cell *matCellDef="let row" class="message-cell">{{ row.message || '' }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.error-row]="row.result === 'error'"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
 </div>
-
-<p>{{ message }}</p>
-
-<ul>
-  <li *ngFor="let item of resp">{{ item | json }}</li>
-</ul>
-

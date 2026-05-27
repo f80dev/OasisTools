@@ -1,9 +1,14 @@
 import {Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
 import {JsonPipe, NgForOf, NgIf} from '@angular/common';
 import * as XLSX from 'xlsx';
-import { firstValueFrom } from 'rxjs';
+import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {MatButton} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatTableModule} from '@angular/material/table';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatIconModule} from '@angular/material/icon';
 import {FormsModule} from "@angular/forms";
 import {get_headers} from '../../tools';
 
@@ -11,13 +16,18 @@ import {get_headers} from '../../tools';
 
 @Component({
   selector: 'app-evals',
-  standalone:true,
+  standalone: true,
   imports: [
     NgIf,
     JsonPipe,
     MatButton,
     NgForOf,
-    FormsModule
+    FormsModule,
+    MatCardModule,
+    MatTableModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
   ],
   templateUrl: './evals.html',
   styleUrl: './evals.css',
@@ -27,13 +37,22 @@ export class Evals implements OnInit {
 
   message: string = '';
   private http = inject(HttpClient);
-  resp:any[]=[];
-  proxyTarget: string = ''
-  docApiUrl: string = ''
-  isStopped = false
-  stopOnError = true
+  resp: any[] = [];
+  proxyTarget: string = '';
+  docApiUrl: string = '';
+  isStopped = false;
+  stopOnError = true;
   importFirstLineOnly = false;
   currentConfig: 'development' | 'production' = 'development';
+  displayedColumns: string[] = ['course', 'student', 'status', 'mention', 'result', 'message'];
+
+  getOkCount(): number {
+    return this.resp.filter(r => r.result === 'ok').length;
+  }
+
+  getErrorCount(): number {
+    return this.resp.filter(r => r.result === 'error').length;
+  }
 
   async ngOnInit() {
     await this.loadConfig();

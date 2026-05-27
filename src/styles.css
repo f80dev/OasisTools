@@ -1,17 +1,77 @@
-/* You can add global styles to this file, and also import other style files */
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-content {
-  padding:20px;
+/* Global Styles */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-sidenav-container {
-  height: 100vh;
-  width: 100vw;
+/* Cards */
+.mat-mdc-card {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
+/* Form fields */
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+/* Buttons */
+.mat-mdc-raised-button.mat-primary {
+  border-radius: 8px !important;
+}
+
+/* Nav list items */
+.mat-mdc-list-item {
+  border-radius: 0 28px 28px 0;
+  margin-right: 8px;
+  height: 48px !important;
+}
+
+.mat-mdc-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Drop zone */
+.drop-zone {
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.drop-zone:hover {
+  border-color: var(--mat-sys-primary);
+  background: rgba(0, 188, 212, 0.06);
+}
+
+.drop-zone.drag-over {
+  border-color: var(--mat-sys-primary);
+  background: rgba(0, 188, 212, 0.12);
+  transform: scale(1.01);
+}
+
+/* Main form container */
 .mainform {
-  padding: 10px;
-  height: 100vh;
+  padding: 0;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Page headers */
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h2 {
+  margin: 0 0 4px;
+  font-weight: 500;
+}
+
+.page-header p {
+  margin: 0;
+  opacity: 0.7;
 }

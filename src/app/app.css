@@ -1,6 +1,68 @@
-body {
-  background-color: #303030;
-  color: #fff;
+/* App Shell */
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toolbar-title {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.sidenav-container {
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Sidenav */
+.app-sidenav {
+  min-width: 260px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidenav-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidenav-logo {
+  color: var(--mat-sys-primary);
+  display: flex;
+  align-items: center;
+}
+
+.sidenav-brand {
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--mat-sys-on-surface);
+}
+
+.sidenav-nav {
+  padding-top: 8px;
+}
+
+.active-link {
+  background-color: var(--mat-sys-secondary-container) !important;
+  color: var(--mat-sys-on-secondary-container) !important;
+  border-radius: 0 28px 28px 0;
+  margin-right: 8px;
+}
+
+.active-link mat-icon {
+  color: var(--mat-sys-on-secondary-container);
+}
+
+/* Main content */
+.main-content {
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Splash Screen */
@@ -10,106 +72,36 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.95);
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a2332 100%);
   z-index: 9999;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
 }
 
+.splash-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.splash-icon {
+  color: #00bcd4;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
 
 .splash-image {
-  width: 100%;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-}
-
-.splash-actions {
-  margin-top: 20px;
-  height: 100vh;
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.splash-btn {
-  border: none;
-  padding: 12px 24px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 15px;
-  display: block;
-  position: fixed;
-  left:45vw;
-  top:80vh;
-  font-family: Arial, sans-serif;
-  transition: background-color 0.2s ease;
-}
-
-.splash-btn:hover {
-  background-color: #616161;
-}
-
-.splash-btn-primary {
-  background-color: #6200EE;
-}
-
-.splash-btn-primary:hover {
-  background-color: #3700B3;
-}
-
-.drop-zone {
-  border: 2px dashed #666;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  font-family: Arial, sans-serif;
-  color: #eee;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.drop-zone:hover {
-  background-color: #424242;
-}
-
-.drop-zone.drag-over {
-  background-color: #5a5a5a;
-  border-color: #80cbc4;
-}
-
-p {
-  margin-top: 10px;
-  font-family: Arial, sans-serif;
-  color: #bdbdbd;
-}
-
-.drop-zone button {
-  background-color: #6200EE;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  margin-top: 15px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-}
-
-.drop-zone button:hover {
-  background-color: #3700B3;
-}
-
-.apptitle {
-  top: 25vh;
-  left:15vw;
-  font-weight: bolder;
-  position: fixed;
-  display: block;
-  font-size: 60px;
-  color:white;
-}
-
-.content {
-  height: 90vh;
+  width: min(90vw, 480px);
+  max-height: 50vh;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
 }

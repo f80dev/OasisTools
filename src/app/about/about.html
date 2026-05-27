@@ -1,5 +1,67 @@
-<div class="mainform">
-  <h1>OASIS Tools</h1>
-  <br>
-  Made with love by AF10
+<div class="about-page">
+  <div class="page-header">
+    <h2>À propos</h2>
+    <p>Gestion administrative OASIS pour AF10</p>
+  </div>
+
+  <div class="about-content">
+    <!-- App Info Card -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <div class="app-logo">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <mat-card-title>OASIS Tools</mat-card-title>
+        <mat-card-subtitle>Version 1.0.0</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p class="app-description">
+          Outil de gestion administrative pour le système OASIS de l'AF10.
+          Permet l'import d'évaluations, la génération de documents et la recherche de profils étudiants.
+        </p>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <mat-icon>assignment</mat-icon>
+            <span>Import batch d'évaluations depuis Excel</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>description</mat-icon>
+            <span>Génération de documents depuis templates Word</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon>person_search</mat-icon>
+            <span>Recherche de profils étudiants</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Credits Card -->
+    <mat-card class="credits-card">
+      <mat-card-header>
+        <mat-card-title>Crédits</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="credit-item">
+          <span class="credit-label">Développé avec</span>
+          <span class="credit-value">Angular + Angular Material</span>
+        </div>
+        <div class="credit-item">
+          <span class="credit-label">Conçu pour</span>
+          <span class="credit-value">AF10</span>
+        </div>
+        <div class="credit-item">
+          <span class="credit-label">API</span>
+          <a href="https://ent.cnsmdp.fr/api/v2/doc" target="_blank" class="credit-link">
+            Documentation OASIS API ↗
+          </a>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>

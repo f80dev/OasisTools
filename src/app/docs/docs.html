@@ -1,70 +1,90 @@
-<div class="mainform">
-  <div *ngIf="message!=''" style="display: flex;">
-    <mat-progress-spinner [diameter]="20" mode="indeterminate" color="primary"></mat-progress-spinner>
-    &nbsp;{{message}}
-  </div>
-  <br>
-
-  <mat-form-field class="select-cursus">
-    <mat-label>Cursus</mat-label>
-    <mat-select [value]="selected_cursus" (selectionChange)="on_select_cursus($event)">
-      <mat-option *ngFor="let item of cursus_list" [value]="item">
-        {{item.NAME || item.CURSUS_NAME}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-
-
-
-  <div *ngIf="selected_cursus">
-    <mat-form-field class="select-cursus">
-      <mat-label>Etudiants</mat-label>
-      <mat-select matNativeControl multiple id="student-select" #studentselect [(ngModel)]="selected_students" (selectionChange)="load_data()">
-        <mat-option *ngFor="let student of student_list" [value]="student">
-          {{student.FNAME}} {{student.LNAME}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <button *ngIf="selected_cursus && message==''" style="margin: 10px;margin-top: -10px;"
-            mat-raised-button (click)="select_all_students()">
-      Tous
-    </button>
-
-
-
-    <br>
-
-    <div *ngIf="!template || template_name==''">
-      <label for="docx-file-input">Sélectionner un fichier .docx :</label>
-      <input type="file" id="docx-file-input" accept=".docx" (change)="on_file_selected($event)">
-    </div>
-
-    <div *ngIf="template_name!=''" style="display: flex;">
-      <span style="opacity: 0.5">Modèle sélectionné:&nbsp;</span> {{template_name.replace(".docx","")}}
-      <button *ngIf="template && template_name"
-              style="margin-top: -10px;margin-left: 10px;"
-              mat-icon-button (click)="clear_doc()">
-        <mat-icon>clear</mat-icon>
-      </button>
-
-    </div>
-
-    <br><br>
+<div class="docs-page">
+  <div class="page-header">
+    <h2>Imprimer des documents</h2>
+    <p>Génération de documents Word/PDF depuis un template et des données élèves</p>
   </div>
 
+  <!-- Progress -->
+  <div *ngIf="message" class="status-message">
+    <mat-progress-spinner [diameter]="20" mode="indeterminate"></mat-progress-spinner>
+    <span>{{ message }}</span>
+  </div>
 
+  <!-- Main Form Card -->
+  <mat-card class="form-card">
+    <mat-card-content>
+      <!-- Cursus selection -->
+      <div class="form-section">
+        <mat-form-field appearance="outline" class="select-cursus">
+          <mat-label>Cursus</mat-label>
+          <mat-select [value]="selected_cursus" (selectionChange)="on_select_cursus($event)">
+            <mat-option *ngFor="let item of cursus_list" [value]="item">
+              {{item.NAME || item.CURSUS_NAME}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
 
-  <button *ngIf="template && selected_cursus && selected_students && selected_students.length>0 && message==''"
-          mat-raised-button (click)="generate_doc()" color="primary">
-    Générer
-  </button>
+      <!-- Student selection -->
+      <div *ngIf="selected_cursus" class="form-section">
+        <div class="students-header">
+          <mat-form-field appearance="outline" class="select-students">
+            <mat-label>Étudiants</mat-label>
+            <mat-select multiple #studentselect [(ngModel)]="selected_students" (selectionChange)="load_data()">
+              <mat-option *ngFor="let student of student_list" [value]="student">
+                {{student.FNAME}} {{student.LNAME}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-stroked-button (click)="select_all_students()" [disabled]="!student_list">
+            <mat-icon>select_all</mat-icon>
+            Tous
+          </button>
+        </div>
+        <p class="selection-info" *ngIf="selected_students.length > 0">
+          {{ selected_students.length }} étudiant(s) sélectionné(s)
+        </p>
+      </div>
 
-  <mat-form-field *ngIf="template" class="select-format">
-    <mat-label>Format</mat-label>
-    <mat-select matNativeControl id="format" [(ngModel)]="selected_format">
-      <mat-option value="docx">Word</mat-option>
-      <mat-option value="pdf">PDF</mat-option>
-    </mat-select>
-  </mat-form-field>
+      <!-- Template selection -->
+      <div *ngIf="selected_cursus" class="form-section">
+        <div *ngIf="!template || template_name==''" class="template-upload">
+          <label for="docx-file-input" class="template-label">
+            <mat-icon>description</mat-icon>
+            Sélectionner un fichier .docx :
+          </label>
+          <input type="file" id="docx-file-input" accept=".docx" (change)="on_file_selected($event)" class="template-input">
+        </div>
 
+        <div *ngIf="template_name!=''" class="template-selected">
+          <mat-icon class="template-icon">description</mat-icon>
+          <div class="template-info">
+            <span class="template-name">Modèle sélectionné : {{template_name.replace(".docx","")}}</span>
+          </div>
+          <button mat-icon-button (click)="clear_doc()" aria-label="Supprimer le template">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Output format -->
+      <div *ngIf="template" class="form-section">
+        <mat-form-field appearance="outline" class="select-format">
+          <mat-label>Format</mat-label>
+          <mat-select [(ngModel)]="selected_format">
+            <mat-option value="docx">Word</mat-option>
+            <mat-option value="pdf">PDF</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Generate button -->
+      <div class="form-actions" *ngIf="template && selected_cursus && selected_students.length > 0 && message==''">
+        <button mat-raised-button color="primary" (click)="generate_doc()">
+          <mat-icon>auto_fix_high</mat-icon>
+          Générer les documents
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

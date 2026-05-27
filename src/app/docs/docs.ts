@@ -1,20 +1,30 @@
 import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {clear_text, get_headers,  saveDataToFile, translate_to_openxml} from '../../tools';
+import {clear_text, get_headers, saveDataToFile, translate_to_openxml} from '../../tools';
 import {CommonModule} from "@angular/common";
 import {MatFormFieldModule} from "@angular/material/form-field";
-import {MatSelect, MatSelectChange, MatSelectModule} from "@angular/material/select";
+import {MatSelectModule, MatSelect, MatSelectChange} from "@angular/material/select";
 import {MatButtonModule} from "@angular/material/button";
-import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {MatCardModule} from "@angular/material/card";
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatIconModule} from "@angular/material/icon";
 import {FormsModule} from "@angular/forms";
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatIcon} from '@angular/material/icon';
 
 @Component({
   selector: 'app-docs',
   standalone: true,
-  imports: [CommonModule, MatFormFieldModule, MatSelectModule, MatButtonModule, MatProgressSpinner, FormsModule, MatIcon],
+  imports: [
+    CommonModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    FormsModule,
+  ],
   templateUrl: './docs.html',
   styleUrl: './docs.css',
 })

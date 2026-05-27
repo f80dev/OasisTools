@@ -1,5 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {MatButton} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
 import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {get_headers} from '../../tools';
@@ -8,7 +10,9 @@ import {get_headers} from '../../tools';
   selector: 'app-searchtools',
   standalone: true,
   imports: [
-    MatButton
+    MatButton,
+    MatCardModule,
+    MatIconModule,
   ],
   templateUrl: './searchtools.html',
   styleUrl: './searchtools.css',

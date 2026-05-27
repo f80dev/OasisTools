@@ -1,0 +1,11 @@
+.test-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.action-card {
+  border-radius: 16px !important;
+  padding: 24px;
+  text-align: center;
+}

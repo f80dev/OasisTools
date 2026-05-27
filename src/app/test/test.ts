@@ -1,10 +1,12 @@
 import {Component, OnInit} from '@angular/core';
+import {MatCardModule} from '@angular/material/card';
 import {TemplateHandler, RawXmlPlugin, createDefaultPlugins} from 'easy-template-x';
 import {get_properties, saveDataToFile, translate_to_openxml} from '../../tools';
 
 @Component({
   selector: 'app-test',
-  imports: [],
+  standalone: true,
+  imports: [MatCardModule],
   templateUrl: './test.html',
   styleUrl: './test.css',
 })
