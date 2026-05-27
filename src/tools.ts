@@ -2,6 +2,7 @@ import {API_LOGIN} from './secret';
 import {parseOffice} from 'officeparser';
 import * as JSZip from 'jszip';
 import {XMLParser} from 'fast-xml-parser';
+import {OasisSettings, SETTINGS_KEY} from './app/preferences/preferences';
 
 export function clear_text(text:any) : string {
   if(!text || typeof(text)!="string")return text
@@ -76,6 +77,11 @@ export function translate_to_openxml(text:any) : string | any {
 
   return {_type:"rawXml",xml:outputParts.join('')};
 }
+
+export function local_settings() : OasisSettings {
+  return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+}
+
 
 function generateOpenXmlRun(
   content: string,

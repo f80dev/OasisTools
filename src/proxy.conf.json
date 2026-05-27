@@ -1,4 +1,11 @@
 {
+  "/prod/api/v2": {
+    "target": "https://cnsmdp.scolasis.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+
   "/api/v2": {
     "target": "https://testcnsmdp.scolasis.com",
     "secure": true,
@@ -6,7 +13,7 @@
     "logLevel": "debug"
   },
 
-  "/api/doc": {
+  "/local/api/doc": {
     "target": "http://localhost:8910",
     "secure": true,
     "changeOrigin": true,
@@ -19,6 +26,5 @@
     "changeOrigin": true,
     "logLevel": "debug"
   }
-
 
 }

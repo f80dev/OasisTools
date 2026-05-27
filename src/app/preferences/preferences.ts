@@ -9,13 +9,14 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatDividerModule} from "@angular/material/divider";
+import {MatSelectModule} from "@angular/material/select";
 import {HttpClient} from "@angular/common/http";
 
-const SETTINGS_KEY = 'oasis_settings';
+export const SETTINGS_KEY = 'oasis_settings';
 
 export interface OasisSettings {
   docApiUrl: string;
-  evalProxyTarget: string;
+  evalProxyVersion: 'test' | 'prod';
   evalStopOnError: boolean;
   evalImportFirstLineOnly: boolean;
 }
@@ -29,6 +30,7 @@ export interface OasisSettings {
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
@@ -48,7 +50,7 @@ export class PreferencesComponent {
   testResult = signal<string | null>(null);
 
   // Eval settings
-  evalProxyTarget = signal('');
+  evalProxyVersion = signal<'test' | 'prod'>('prod');
   evalStopOnError = signal(true);
   evalImportFirstLineOnly = signal(false);
 
@@ -57,18 +59,16 @@ export class PreferencesComponent {
     if (stored) {
       const settings: OasisSettings = JSON.parse(stored);
       this.docApiUrl.set(settings.docApiUrl || '');
-      this.evalProxyTarget.set(settings.evalProxyTarget || 'http://localhost:5002');
+      this.evalProxyVersion.set(settings.evalProxyVersion || 'prod');
       this.evalStopOnError.set(settings.evalStopOnError ?? true);
       this.evalImportFirstLineOnly.set(settings.evalImportFirstLineOnly ?? false);
-    } else {
-      this.evalProxyTarget.set('http://localhost:5002');
     }
   }
 
   save() {
     const settings: OasisSettings = {
       docApiUrl: this.docApiUrl(),
-      evalProxyTarget: this.evalProxyTarget(),
+      evalProxyVersion: this.evalProxyVersion(),
       evalStopOnError: this.evalStopOnError(),
       evalImportFirstLineOnly: this.evalImportFirstLineOnly(),
     };
@@ -78,7 +78,7 @@ export class PreferencesComponent {
 
   reset() {
     this.docApiUrl.set('http://localhost:5002');
-    this.evalProxyTarget.set('http://localhost:5002');
+    this.evalProxyVersion.set('prod');
     this.evalStopOnError.set(true);
     this.evalImportFirstLineOnly.set(false);
     this.save();

@@ -64,9 +64,9 @@ export class Evals implements OnInit {
   get_headers_from_proxy() : any {
     const stored = localStorage.getItem('oasis_settings');
     const settings = stored ? JSON.parse(stored) : {};
-    const target = settings.evalProxyTarget || 'http://localhost:5002';
+    const version = settings.evalProxyVersion || 'prod';
     return {
-      'x-target': target,
+      'x-proxy-version': version,
       'x-proxy': 'eval'
     };
   }

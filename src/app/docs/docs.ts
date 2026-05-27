@@ -1,7 +1,7 @@
 import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {clear_text, get_headers, saveDataToFile, translate_to_openxml} from '../../tools';
+import {clear_text, get_headers, local_settings, saveDataToFile, translate_to_openxml} from '../../tools';
 import {CommonModule} from "@angular/common";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatSelectModule, MatSelect, MatSelectChange} from "@angular/material/select";
@@ -11,6 +11,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatIconModule} from "@angular/material/icon";
 import {FormsModule} from "@angular/forms";
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {Oasis} from '../oasis';
+import {OasisSettings, PreferencesComponent} from '../preferences/preferences';
 
 @Component({
   selector: 'app-docs',
@@ -30,13 +32,16 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 })
 export class Docs implements OnInit {
 
-  http=inject(HttpClient)
   snackbar=inject(MatSnackBar)
+  oasis=inject(Oasis)
+  http=inject(HttpClient)
+
   public cursus_list: any[] | undefined
   public student_list: any[] | undefined
   public selected_file: File | undefined;
   @ViewChild('studentselect') student_select: MatSelect | undefined;
   protected message=""
+
   public selected_cursus: any | undefined
   public selected_students: any[] = [];
   public template: any;
@@ -61,7 +66,13 @@ export class Docs implements OnInit {
 
     //Sélectionne le premier cursus
     if (this.cursus_list && this.cursus_list.length > 0) {
-      await this.on_select_cursus({ value: this.cursus_list[0] } as MatSelectChange);
+      if(localStorage.getItem("selected_cursus")){
+        this.selected_cursus=JSON.parse(localStorage.getItem("selected_cursus") || "{}")
+        await this.on_select_cursus({value:this.selected_cursus}  as MatSelectChange)
+      }else{
+        await this.on_select_cursus({ value: this.cursus_list[0] } as MatSelectChange);
+      }
+
     }
 
     this.cursus_disciplines=await this.get_maquettage()
@@ -69,31 +80,18 @@ export class Docs implements OnInit {
   }
 
 
-  async api(url:string,message="",year=2025) {
-    url="/api/v2/"+year+"/"+url
-    this.message=message
-    let rc: any =[]
-    try{
-      rc = await firstValueFrom(this.http.get(url, {headers: get_headers()}));
-    }catch (e){
-
-    }
-    return rc
-  }
 
 
-  async api_doc(url:string,data:any,message="") {
-    const settings = JSON.parse(localStorage.getItem('oasis_settings') || '{}');
-    const baseUrl = settings.docApiUrl || 'http://localhost:5002';
+  async get_doc(url:string,data:any,message="") {
+    const baseUrl = local_settings().docApiUrl
     url = `${baseUrl}/doc${url}`;
     this.message=message
     return await firstValueFrom(this.http.post(url, data));
   }
 
 
-
   async get_cursus() {
-    return await this.api('modules?subclass_detail=false',"chargement des cursus")
+    return await this.oasis.get('modules?subclass_detail=false',"chargement des cursus")
     }
 
   async get_maquettage() {
@@ -103,31 +101,31 @@ export class Docs implements OnInit {
       let rc: any = {}
       for (let y = 2016; y < 2026; y++) {
         let k = y.toString()
-        rc[k] = await this.api('moduleCourses', "chargement du maquettage", y)
+        rc[k] = await this.oasis.get('moduleCourses', "chargement du maquettage", y)
       }
       return rc
     }
   }
 
   async get_students(cursus:string) {
-    return await this.api('modules/'+cursus+'/students',"chargement des étudiants ...")
+    return await this.oasis.get('modules/'+cursus+'/students',"chargement des étudiants ...")
   }
 
   async get_student(login:string) {
-    return await this.api('students/'+login,"chargement du detail de l'étudiant ...")
+    return await this.oasis.get('students/'+login,"chargement du detail de l'étudiant ...")
   }
 
   async get_disciplines(student:string,year:number) {
-    return await this.api('students/'+student+'/courses',"Chargement des disciplines ...",year)
+    return await this.oasis.get('students/'+student+'/courses',"Chargement des disciplines ...",year)
   }
 
   async get_eval_disciplines(student:string,discipline:string,year:number) {
-    return await this.api('students/'+student+'/courses',"Chargement des disciplines ...",year)
+    return await this.oasis.get('students/'+student+'/courses',"Chargement des disciplines ...",year)
   }
 
   async on_select_cursus($event: MatSelectChange<any>) {
     this.selected_cursus=$event.value
-    localStorage.setItem("cursus_selected",JSON.stringify(this.selected_cursus))
+    localStorage.setItem("selected_cursus",JSON.stringify(this.selected_cursus))
     this.student_list=await this.get_students(this.selected_cursus.CODE) as any[]
     if (this.student_list && this.student_list.length > 0) {
       this.selected_students = [this.student_list[0]];
@@ -173,8 +171,8 @@ export class Docs implements OnInit {
       let rc: any = {}
       for (let y = 2016; y < 2026; y++) {
         rc[y.toString()]=[]
-        for (let d of await this.api("courses","",y)){
-          for(let e of await this.api("courses/"+d.CODE+"/assessments","",y)){
+        for (let d of await this.oasis.get("courses","",y)){
+          for(let e of await this.oasis.get("courses/"+d.CODE+"/assessments","",y)){
             e.STUDENT=e.STUDENT.CODE
             e.CODE_COURSE=d.CODE
             rc[y.toString()].push(e)
@@ -200,7 +198,7 @@ export class Docs implements OnInit {
         d[i].EN_REQUISIT=""
         d[i].REWARD_EN=""
 
-        for(let e of await this.api("courses/"+d[i].CODE+"/assessments","Récupération des résultats de "+student.FNAME,y)){
+        for(let e of await this.oasis.get("courses/"+d[i].CODE+"/assessments","Récupération des résultats de "+student.FNAME,y)){
           if(e.STUDENT.CODE==student.CODE){
             d[i].MENTION=e.MENTION.LABEL
             d[i].VALIDATE=e.STATUS.LABEL
@@ -271,7 +269,7 @@ export class Docs implements OnInit {
   //     for(let k in this.selected_cursus)
   //       rc["CURSUS_"+k]=translate_to_openxml(clear_text(this.selected_cursus[k]))
   //
-  //     //let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
+  //     //let disciplines=await this.oasis.get("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
   //
   //     try {
   //
@@ -336,12 +334,12 @@ export class Docs implements OnInit {
       this.message = "Traitement de " + student.FNAME + " " + student.LNAME
 
       if(!this.data.hasOwnProperty(student.CODE)){
-        let cache = localStorage.getItem(this.selected_cursus + "_" + student.LNAME)
+        let cache = localStorage.getItem(this.selected_cursus.CODE + "_" + student.LNAME)
         if (!cache) {
           student = await this.get_student(student.CODE)
           student["images"]={"PHOTO":student["PHOTO"]}
           if (with_disciplines) student = await this.complete_student(student)
-          localStorage.setItem(this.selected_cursus + "_" + student.LNAME, JSON.stringify(student))
+          localStorage.setItem(this.selected_cursus.CODE + "_" + student.LNAME, JSON.stringify(student))
         } else {
           student = JSON.parse(cache)
         }
@@ -355,7 +353,7 @@ export class Docs implements OnInit {
         for (let k in this.selected_cursus)
             obj["CURSUS_" + k] = translate_to_openxml(clear_text(this.selected_cursus[k]))
 
-        //let disciplines=await this.api("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
+        //let disciplines=await this.oasis.get("/modules/"+this.selected_cursus.CODE+"/moduleCourses")
 
         this.data[student.CODE]=obj
       }
@@ -383,7 +381,7 @@ export class Docs implements OnInit {
 
         try{
           //appel du service https://console.cloud.google.com/run/detail/europe-west1/apidoc/yaml/view?hl=fr&project=apidoc-496918
-          const doc:any=await this.api_doc("/merge-docx/",{format:this.selected_format,data: this.data[login],template:templateBuffer})
+          const doc:any=await this.get_doc("/merge-docx/",{format:this.selected_format,data: this.data[login],template:templateBuffer})
           this.saveBase64AsDocx(doc.document_base64,this.template_name+"_"+student.STUDENT_LNAME+"_"+student.STUDENT_FNAME+".docx")
         }catch (e){
           this.snackbar.open("Probleme avec le template","Ok")

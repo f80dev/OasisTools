@@ -1,6 +1,6 @@
 <div class="docs-page">
   <div class="page-header">
-    <h2>Imprimer des documents</h2>
+    <h2>Générer des documents</h2>
     <p>Génération de documents Word/PDF depuis un template et des données élèves</p>
   </div>
 
@@ -51,7 +51,7 @@
         <div *ngIf="!template || template_name==''" class="template-upload">
           <label for="docx-file-input" class="template-label">
             <mat-icon>description</mat-icon>
-            Sélectionner un fichier .docx :
+              Modèle de document
           </label>
           <input type="file" id="docx-file-input" accept=".docx" (change)="on_file_selected($event)" class="template-input">
         </div>
@@ -68,15 +68,15 @@
       </div>
 
       <!-- Output format -->
-      <div *ngIf="template" class="form-section">
-        <mat-form-field appearance="outline" class="select-format">
-          <mat-label>Format</mat-label>
-          <mat-select [(ngModel)]="selected_format">
-            <mat-option value="docx">Word</mat-option>
-            <mat-option value="pdf">PDF</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+<!--      <div *ngIf="template" class="form-section">-->
+<!--        <mat-form-field appearance="outline" class="select-format">-->
+<!--          <mat-label>Format</mat-label>-->
+<!--          <mat-select [(ngModel)]="selected_format">-->
+<!--            <mat-option value="docx">Word</mat-option>-->
+<!--            <mat-option value="pdf">PDF</mat-option>-->
+<!--          </mat-select>-->
+<!--        </mat-form-field>-->
+<!--      </div>-->
 
       <!-- Generate button -->
       <div class="form-actions" *ngIf="template && selected_cursus && selected_students.length > 0 && message==''">
