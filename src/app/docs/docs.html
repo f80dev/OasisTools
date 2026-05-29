@@ -14,12 +14,21 @@
   <mat-card class="form-card">
     <mat-card-content>
       <!-- Cursus selection -->
-      <div class="form-section">
+      <div class="form-section form-row">
         <mat-form-field appearance="outline" class="select-cursus">
           <mat-label>Cursus</mat-label>
           <mat-select [value]="selected_cursus" (selectionChange)="on_select_cursus($event)">
             <mat-option *ngFor="let item of cursus_list" [value]="item">
               {{item.NAME || item.CURSUS_NAME}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="select-year">
+          <mat-label>Année scolaire</mat-label>
+          <mat-select [value]="selected_year" (selectionChange)="on_select_year($event)">
+            <mat-option *ngFor="let year of year_list" [value]="year">
+              {{year}}
             </mat-option>
           </mat-select>
         </mat-form-field>

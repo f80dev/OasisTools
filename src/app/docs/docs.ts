@@ -12,7 +12,6 @@ import {MatIconModule} from "@angular/material/icon";
 import {FormsModule} from "@angular/forms";
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Oasis} from '../oasis';
-import {OasisSettings, PreferencesComponent} from '../preferences/preferences';
 
 @Component({
   selector: 'app-docs',
@@ -44,6 +43,8 @@ export class Docs implements OnInit {
 
   public selected_cursus: any | undefined
   public selected_students: any[] = [];
+  public selected_year: number = 2025
+  public year_list: number[] = [2025, 2024, 2023,2022,2021,2020]
   public template: any;
   private cursus_disciplines:any
   public template_name: string=""
@@ -91,7 +92,7 @@ export class Docs implements OnInit {
 
 
   async get_cursus() {
-    return await this.oasis.get('modules?subclass_detail=false',"chargement des cursus")
+    return await this.oasis.get('modules?subclass_detail=false',"chargement des cursus",this.selected_year)
     }
 
   async get_maquettage() {
@@ -108,11 +109,11 @@ export class Docs implements OnInit {
   }
 
   async get_students(cursus:string) {
-    return await this.oasis.get('modules/'+cursus+'/students',"chargement des étudiants ...")
+    return await this.oasis.get('modules/'+cursus+'/students',"chargement des étudiants ...",this.selected_year)
   }
 
   async get_student(login:string) {
-    return await this.oasis.get('students/'+login,"chargement du detail de l'étudiant ...")
+    return await this.oasis.get('students/'+login,"chargement du detail de l'étudiant ...",this.selected_year)
   }
 
   async get_disciplines(student:string,year:number) {
@@ -138,6 +139,10 @@ export class Docs implements OnInit {
     // for (let t of await get_properties()){
     //   if(t.subject.indexOf(this.selected_cursus.code)>-1 || t.subject=="")this.templates.push(t)
     // }
+  }
+
+  async on_select_year($event: MatSelectChange<number>) {
+    this.selected_year = $event.value;
   }
 
   async on_file_selected(event: Event) {

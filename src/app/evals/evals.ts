@@ -226,7 +226,7 @@ export class Evals implements OnInit {
 
 
 
-  async get_evals(code_course:string,year=2025) : Promise<any> {
+  async get_evals(code_course:string,year:number) : Promise<any> {
     const url = '/api/v2/'+year+'/courses/'+code_course+"/assessments"
     return firstValueFrom(this.http.get(url, { headers: this.get_headers_from_proxy() }));
   }
@@ -237,7 +237,7 @@ export class Evals implements OnInit {
   async update_from_students_and_course(code_course:string,code_student:string,status:string,mention="",comment="",year=2025,update=true) {
     try {
       if (update) {
-        const evals: any[] = await this.get_evals(code_course);
+        const evals: any[] = await this.get_evals(code_course,year);
         for (let evl of evals) {
           if (evl.STUDENT.CODE == code_student) {
             return this.update_eval_discipline(evl.CODE, status, mention, comment, year)
