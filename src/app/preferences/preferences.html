@@ -48,38 +48,6 @@
     </mat-card-actions>
   </mat-card>
 
-  <!-- Doc API Card -->
-  <mat-card class="prefs-card">
-    <mat-card-header>
-      <mat-icon mat-card-avatar>description</mat-icon>
-      <mat-card-title title="URL de l'API Python pour la génération de documents">Serveur de documents</mat-card-title>
-    </mat-card-header>
 
-
-    <mat-card-content>
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="url-field">
-          <mat-label>URL du serveur DOC</mat-label>
-          <input matInput [(ngModel)]="docApiUrl" placeholder="http://localhost:5002">
-          <mat-icon matPrefix>link</mat-icon>
-        </mat-form-field>
-      </div>
-
-
-      <div *ngIf="testResult()" class="test-result" [class.ok]="testResult()?.startsWith('✓')" [class.error]="testResult()?.startsWith('✗')">
-        <mat-icon>{{ testResult()?.startsWith('✓') ? 'check_circle' : 'error' }}</mat-icon>
-        <span>{{ testResult() }}</span>
-      </div>
-
-    </mat-card-content>
-
-
-    <mat-card-actions>
-      <button mat-button (click)="testConnection()" [disabled]="testing()">
-        <mat-icon>wifi</mat-icon>
-        Tester
-      </button>
-    </mat-card-actions>
-  </mat-card>
 
 </div>

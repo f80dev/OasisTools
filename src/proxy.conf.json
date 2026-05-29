@@ -1,11 +1,4 @@
 {
-  "/prod/api/v2": {
-    "target": "https://cnsmdp.scolasis.com",
-    "secure": true,
-    "changeOrigin": true,
-    "logLevel": "debug"
-  },
-
   "/api/v2": {
     "target": "https://testcnsmdp.scolasis.com",
     "secure": true,
@@ -13,18 +6,24 @@
     "logLevel": "debug"
   },
 
-  "/local/api/doc": {
-    "target": "http://localhost:8910",
-    "secure": true,
+  "/doc/health": {
+    "target": "http://127.0.0.1:8910",
+    "secure": false,
     "changeOrigin": true,
-    "logLevel": "debug"
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/doc/health": "/health"
+    }
   },
 
-  "/server/api/doc": {
-    "target": "https://apidoc.af10.fr",
-    "secure": true,
-    "changeOrigin": true,
-    "logLevel": "debug"
-  }
 
+  "/doc/merge/": {
+    "target": "http://127.0.0.1:8910",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/doc/merge/": "/merge/"
+    }
+  }
 }

@@ -51,6 +51,14 @@ export class Docs implements OnInit {
   private data:any={}
 
   async ngOnInit()  {
+    // Test connectivity with health endpoint
+    try {
+      await firstValueFrom(this.http.get("/doc/health/"));
+      console.log('[Docs] Health check passed');
+    } catch (e) {
+      console.error('[Docs] Health check failed:', e);
+    }
+
     const json_cursus=localStorage.getItem("cursus")
     if(json_cursus){
       this.cursus_list=JSON.parse(json_cursus)
@@ -84,16 +92,18 @@ export class Docs implements OnInit {
 
 
   async get_doc(url:string,data:any,message="") {
-    const baseUrl = local_settings().docApiUrl
-    url = `${baseUrl}/doc${url}`;
+    url = `/doc${url}`;
+    console.log('[get_doc] Full URL:', url);
     this.message=message
     return await firstValueFrom(this.http.post(url, data));
   }
 
 
   async get_cursus() {
-    return await this.oasis.get('modules?subclass_detail=false',"chargement des cursus",this.selected_year)
-    }
+    return await this.oasis.get('modules?subclass_detail=false&course_list=true',"chargement des cursus",this.selected_year)
+  }
+
+
 
   async get_maquettage() {
     try {
@@ -133,7 +143,7 @@ export class Docs implements OnInit {
     } else {
       this.selected_students = [];
     }
-    this.load_data()
+    this.load_data_for_student()
     this.message=""
     // this.templates=[]
     // for (let t of await get_properties()){
@@ -203,13 +213,23 @@ export class Docs implements OnInit {
         d[i].EN_REQUISIT=""
         d[i].REWARD_EN=""
 
-        for(let e of await this.oasis.get("courses/"+d[i].CODE+"/assessments","Récupération des résultats de "+student.FNAME,y)){
+        const discipline_id=d[i].CODE
+
+        for(let e of await this.oasis.get("courses/"+discipline_id+"/assessments","Récupération des résultats de "+student.FNAME,y)){
           if(e.STUDENT.CODE==student.CODE){
             d[i].MENTION=e.MENTION.LABEL
             d[i].VALIDATE=e.STATUS.LABEL
             d[i].COMMENT=e.COMMENT
           }
         }
+
+        //recherche de l'ECTS
+        if(this.selected_cursus.COURSES.hasOwnProperty(discipline_id)){
+          d[i].ECTS=Number(this.selected_cursus.COURSES[discipline_id].ECTS)
+        }else{
+          console.log(d[i].CODE+" est hors cursus")
+        }
+
         student.DISCIPLINES.push(d[i])
       }
     }
@@ -331,9 +351,8 @@ export class Docs implements OnInit {
 
 
 
-  async load_data(with_disciplines=true) {
+  async load_data_for_student(with_disciplines=true) {
     console.log("Chargement des datas ")
-
 
     for (let student of this.selected_students) {
       this.message = "Traitement de " + student.FNAME + " " + student.LNAME
@@ -374,20 +393,25 @@ export class Docs implements OnInit {
       alert("Veuillez sélectionner un fichier et au moins un étudiant.");
       return;
     }
-    await this.load_data()
+    await this.load_data_for_student()
 
     for (let login in this.data){
 
-        let student=this.data[login]
+        let data=this.data[login]
         const templateBuffer: string = this.template.split(",")[1]
+        data["DATE_NOW"]=new Date().toLocaleDateString()
+        data["STUDENT_NAME"]=data["STUDENT_FNAME"]+" "+data["STUDENT_LNAME"]
+        data["NOW"]=new Date().toLocaleDateString()
+        data["TIME_NOW"]=new Date().toLocaleTimeString()
+        data["ACADEMIC_YEARS"]=this.selected_year
 
         //Voir la documentation : https://templatedocs.io/docs/intro
         this.message="Production du document"
 
         try{
           //appel du service https://console.cloud.google.com/run/detail/europe-west1/apidoc/yaml/view?hl=fr&project=apidoc-496918
-          const doc:any=await this.get_doc("/merge-docx/",{format:this.selected_format,data: this.data[login],template:templateBuffer})
-          this.saveBase64AsDocx(doc.document_base64,this.template_name+"_"+student.STUDENT_LNAME+"_"+student.STUDENT_FNAME+".docx")
+          const doc:any=await this.get_doc("/merge/",{template:templateBuffer,data: this.data[login]})
+          this.saveBase64AsDocx(doc.document_base64,this.template_name+"_"+data.STUDENT_LNAME+"_"+data.STUDENT_FNAME+".docx")
         }catch (e){
           this.snackbar.open("Probleme avec le template","Ok")
         }
@@ -405,7 +429,7 @@ export class Docs implements OnInit {
   protected select_all_students() {
     if(this.student_list){
       this.selected_students=this.student_list
-      this.load_data()
+      this.load_data_for_student()
     }
   }
 }

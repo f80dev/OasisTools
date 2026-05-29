@@ -1,0 +1,84 @@
+<div class="faqs-page">
+  <div class="page-header">
+    <h2>Base de connaissances</h2>
+    <p>Importez et consultez vos documents PDF pour enrichir la base de connaissances</p>
+  </div>
+
+  <!-- Upload Zone -->
+  <mat-card class="upload-card"
+           [class.dragging]="isDragging"
+           (dragover)="on_drag_over($event)"
+           (dragleave)="on_drag_leave($event)"
+           (drop)="on_drop($event)">
+    <mat-card-content>
+      <div class="upload-zone">
+        <mat-icon class="upload-icon">upload_file</mat-icon>
+        <p class="upload-text">Glissez-déposez vos fichiers PDF ici</p>
+        <p class="upload-subtext">ou</p>
+        <label for="pdf-file-input" class="upload-button">
+          <mat-icon>folder_open</mat-icon>
+          Parcourir les fichiers
+        </label>
+        <input type="file" id="pdf-file-input" accept=".pdf" multiple (change)="on_file_selected($event)" class="file-input">
+        <p class="upload-hint">PDF uniquement, max 10 Mo par fichier</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Documents List -->
+  <div class="documents-section" *ngIf="pdfs.length > 0">
+    <h3>Documents importés ({{ pdfs.length }})</h3>
+
+    <div class="documents-grid">
+      <mat-card *ngFor="let pdf of pdfs" class="document-card" (click)="viewPdf(pdf)">
+        <mat-card-content>
+          <div class="document-icon">
+            <mat-icon>picture_as_pdf</mat-icon>
+          </div>
+          <div class="document-info">
+            <h4 class="document-name">{{ pdf.name }}</h4>
+            <p class="document-meta">
+              {{ formatDate(pdf.dateAdded) }} · {{ getFileSize(pdf.data) }}
+            </p>
+          </div>
+          <div class="document-actions" (click)="$event.stopPropagation()">
+            <button mat-icon-button (click)="openPdfInNewWindow(pdf)" matTooltip="Ouvrir dans une nouvelle fenêtre">
+              <mat-icon>open_in_new</mat-icon>
+            </button>
+            <button mat-icon-button (click)="deletePdf(pdf)" matTooltip="Supprimer" class="delete-btn">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="pdfs.length === 0">
+    <mat-icon class="empty-icon">library_books</mat-icon>
+    <p>Aucun document importé</p>
+    <p class="empty-hint">Importez vos premiers fichiers PDF pour commencer</p>
+  </div>
+
+  <!-- PDF Viewer Modal -->
+  <div class="pdf-viewer-overlay" *ngIf="selectedPdf" (click)="closeViewer()">
+    <div class="pdf-viewer-modal" (click)="$event.stopPropagation()">
+      <div class="viewer-header">
+        <h3>{{ selectedPdf.name }}</h3>
+        <button mat-icon-button (click)="closeViewer()" aria-label="Fermer">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="viewer-content">
+        <embed [src]="selectedPdf.data" type="application/pdf">
+      </div>
+      <div class="viewer-footer">
+        <button mat-stroked-button (click)="openPdfInNewWindow(selectedPdf)">
+          <mat-icon>open_in_new</mat-icon>
+          Ouvrir dans une nouvelle fenêtre
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

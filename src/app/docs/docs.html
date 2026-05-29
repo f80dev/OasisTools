@@ -18,9 +18,11 @@
         <mat-form-field appearance="outline" class="select-cursus">
           <mat-label>Cursus</mat-label>
           <mat-select [value]="selected_cursus" (selectionChange)="on_select_cursus($event)">
-            <mat-option *ngFor="let item of cursus_list" [value]="item">
-              {{item.NAME || item.CURSUS_NAME}}
-            </mat-option>
+            <ng-container *ngFor="let item of cursus_list">
+              <mat-option *ngIf="item.NAME || item.CURSUS_NAME" [value]="item">
+                {{item.NAME || item.CURSUS_NAME}} - {{item.CYCLE}}
+              </mat-option>
+            </ng-container>
           </mat-select>
         </mat-form-field>
 
@@ -39,7 +41,7 @@
         <div class="students-header">
           <mat-form-field appearance="outline" class="select-students">
             <mat-label>Étudiants</mat-label>
-            <mat-select multiple #studentselect [(ngModel)]="selected_students" (selectionChange)="load_data()">
+            <mat-select multiple #studentselect [(ngModel)]="selected_students" (selectionChange)="load_data_for_student()">
               <mat-option *ngFor="let student of student_list" [value]="student">
                 {{student.FNAME}} {{student.LNAME}}
               </mat-option>

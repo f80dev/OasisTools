@@ -1,0 +1,19 @@
+{
+  "/api/v2": {
+    "target": "https://cnsmdp.scolasis.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+
+
+
+
+  "/doc": {
+    "target": "https://apidoc.af10.fr",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+
+}

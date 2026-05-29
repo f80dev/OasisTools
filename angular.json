@@ -84,7 +84,7 @@
           "configurations": {
             "production": {
               "buildTarget": "OasisTools:build:production",
-              "proxyConfig": "src/proxy.conf.json"
+              "proxyConfig": "src/proxy_prod.conf.json"
             },
             "development": {
               "buildTarget": "OasisTools:build:development",

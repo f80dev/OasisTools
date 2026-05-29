@@ -1,0 +1,276 @@
+.faqs-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Upload Card */
+.upload-card {
+  border-radius: 16px !important;
+  transition: all 0.3s ease;
+}
+
+.upload-card.dragging {
+  border: 2px dashed var(--mat-sys-primary);
+  background: rgba(var(--mat-sys-primary-rgb), 0.05);
+}
+
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s ease;
+}
+
+.upload-card.dragging .upload-zone {
+  border-color: var(--mat-sys-primary);
+  background: rgba(var(--mat-sys-primary-rgb), 0.08);
+}
+
+.upload-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  opacity: 0.6;
+}
+
+.upload-text {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.upload-subtext {
+  font-size: 13px;
+  opacity: 0.6;
+  margin: 0;
+}
+
+.upload-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.upload-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-hint {
+  font-size: 12px;
+  opacity: 0.5;
+  margin: 8px 0 0;
+}
+
+/* Documents Section */
+.documents-section {
+  margin-top: 8px;
+}
+
+.documents-section h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 16px;
+  opacity: 0.8;
+}
+
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.document-card {
+  border-radius: 12px !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.document-card mat-card-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px !important;
+}
+
+.document-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 8px;
+}
+
+.document-icon mat-icon {
+  color: #f44336;
+}
+
+.document-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.document-name {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.document-meta {
+  font-size: 12px;
+  opacity: 0.6;
+  margin: 0;
+}
+
+.document-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.document-actions button {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.document-card:hover .document-actions button {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  color: #f44336 !important;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+  opacity: 0.6;
+}
+
+.empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  opacity: 0.4;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.empty-hint {
+  font-size: 13px;
+  opacity: 0.5;
+}
+
+/* PDF Viewer Modal */
+.pdf-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.pdf-viewer-modal {
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  background: var(--mat-sys-surface);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.viewer-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.viewer-content {
+  flex: 1;
+  overflow: hidden;
+  background: #333;
+}
+
+.viewer-content embed {
+  width: 100%;
+  height: 100%;
+  min-height: 60vh;
+}
+
+.viewer-footer {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
