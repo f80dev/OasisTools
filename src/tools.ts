@@ -16,6 +16,33 @@ export function clear_text(text:any) : string {
 }
 
 
+export async function readfile(file:any) : Promise<{template:any,template_name:string}>{
+  console.log('[readfile] Received parameter:', {
+    type: typeof file,
+    isBlob: file instanceof Blob,
+    isFile: file instanceof File,
+    value: file
+  });
+  return new Promise((resolve, reject) =>{
+    const reader = new FileReader();
+    reader.onload = () => {
+      let template:any=reader.result
+      let template_name=typeof file === 'object' && file.name ? file.name.replace(".docx","") : "unknown";
+      console.log('[readfile] Successfully read file:', template_name);
+      localStorage.setItem("template",template || "")
+      resolve({template:template,template_name:template_name})
+    }
+    reader.onerror = (error) => {
+      console.error('[readfile] FileReader error:', error);
+      reject(error);
+    }
+    console.log('[readfile] About to call readAsDataURL with:', file);
+    reader.readAsDataURL(file);
+  })
+
+}
+
+
 export function translate_to_openxml(text:any) : string | any {
   if(!text || typeof(text)!="string")return text
 

@@ -40,7 +40,8 @@ export class App implements OnInit {
     {label: 'Accueil', route: '/', icon: 'home'},
     {label: 'Évaluer des disciplines', route: '/evals', icon: 'assignment'},
     {label: 'Recherche des profils', route: '/search', icon: 'person_search'},
-    {label: 'Générer des documents', route: '/docs', icon: 'description'},
+    {label: 'Documents depuis OASIS', route: '/docs', icon: 'description'},
+    {label: 'Documents depuis Excel', route: '/docsfromexcel', icon: 'description'},
     {label: 'Préférences', route: '/preferences', icon: 'settings'},
     {label: 'À propos', route: '/about', icon: 'info'},
   ];

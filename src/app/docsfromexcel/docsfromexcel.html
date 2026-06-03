@@ -1,0 +1,113 @@
+<div class="docs-page">
+  <div class="page-header">
+    <h2>Générer des documents depuis Excel</h2>
+    <p>Importez un fichier Excel avec des données et un modèle Word pour générer des documents</p>
+  </div>
+
+  <!-- Progress -->
+  <div *ngIf="message" class="status-message">
+    <mat-progress-spinner [diameter]="20" mode="indeterminate"></mat-progress-spinner>
+    <span>{{ message }}</span>
+  </div>
+
+  <!-- Main Form Card -->
+  <mat-card class="form-card">
+    <mat-card-content>
+      <!-- Excel file drop zone -->
+      <div class="form-section">
+        <div *ngIf="!excelData || excelData.length === 0" class="file-upload"
+             (click)="excelFileInput.click()"
+             (dragover)="onDragOver($event)"
+             (drop)="onExcelDrop($event)">
+          <input type="file" #excelFileInput accept=".xlsx,.xls,.csv" (change)="onExcelFileSelected($event)" style="display:none">
+          <mat-icon>table_chart</mat-icon>
+          <span>Fichier Excel ou CSV avec données</span>
+          <span class="upload-hint">Cliquez ou glissez-déposez un fichier .xlsx, .xls ou .csv</span>
+        </div>
+
+        <div *ngIf="excelData && excelData.length > 0" class="file-selected">
+          <mat-icon class="file-icon">table_chart</mat-icon>
+          <div class="file-info">
+            <span class="file-name">{{ excelFileName }}</span>
+            <span class="file-info-sub">{{ excelData.length }} ligne(s) - {{ excelHeaders.length }} colonne(s)</span>
+          </div>
+          <button mat-icon-button (click)="clearExcel()" aria-label="Supprimer le fichier Excel">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <!-- Skip second row checkbox - Excel only -->
+        <div *ngIf="excelData && excelData.length > 0 && isExcelFile" class="skip-row-option">
+          <mat-checkbox [(ngModel)]="skipSecondRow">Ignorer la 2ème ligne du fichier</mat-checkbox>
+        </div>
+
+        <!-- Column headers display -->
+        <div *ngIf="excelHeaders.length > 0" class="headers-display">
+          <h4>Colonnes disponibles</h4>
+          <div class="headers-list">
+            <span *ngFor="let header of excelHeaders" class="header-tag" (click)="copyToClipboard(header)">{{ header }}</span>
+          </div>
+        </div>
+
+        <!-- Missing placeholders warning -->
+        <div *ngIf="missingPlaceholders.length > 0" class="missing-placeholders">
+          <h4>⚠️ Champs du modèle absents des colonnes</h4>
+          <div class="missing-list">
+            <span *ngFor="let placeholder of missingPlaceholders" class="missing-tag" (click)="copyToClipboard(placeholder)">{{ placeholder }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template drop zone -->
+      <div class="form-section">
+        <div *ngIf="!template || template_name === ''" class="file-upload"
+             (click)="templateFileInput.click()"
+             (dragover)="onDragOver($event)"
+             (drop)="onTemplateDrop($event)">
+          <input type="file" #templateFileInput accept=".docx" (change)="onTemplateFileSelected($event)" style="display:none">
+          <mat-icon>description</mat-icon>
+          <span>Modèle de document Word</span>
+          <span class="upload-hint">Cliquez ou glissez-déposez un fichier .docx</span>
+        </div>
+
+        <div *ngIf="template_name !== ''" class="file-selected">
+          <mat-icon class="file-icon">description</mat-icon>
+          <div class="file-info">
+            <span class="file-name">Modèle sélectionné : {{ template_name }}</span>
+          </div>
+          <button mat-icon-button (click)="clearTemplate()" aria-label="Supprimer le template">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Data preview -->
+      <div *ngIf="excelData && excelData.length > 0" class="form-section">
+        <h4>Aperçu des données ({{ excelData.length }} lignes)</h4>
+        <div class="data-preview">
+          <table>
+            <thead>
+              <tr>
+                <th *ngFor="let header of excelHeaders">{{ header }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of excelData.slice(0, 5)">
+                <td *ngFor="let header of excelHeaders">{{ row[header] }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p *ngIf="excelData.length > 5" class="preview-note">Affichage des 5 premières lignes sur {{ excelData.length }}</p>
+        </div>
+      </div>
+
+      <!-- Generate button -->
+      <div class="form-actions" *ngIf="template && excelData && excelData.length > 0 && message === ''">
+        <button mat-raised-button color="primary" (click)="generate_doc()">
+          <mat-icon>auto_fix_high</mat-icon>
+          Générer les documents
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

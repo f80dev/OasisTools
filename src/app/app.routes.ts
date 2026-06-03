@@ -6,11 +6,13 @@ import {Docs} from './docs/docs';
 import {Test} from './test/test';
 import {About} from './about/about';
 import {PreferencesComponent} from './preferences/preferences';
+import {Docsfromexcel} from './docsfromexcel/docsfromexcel';
 
 export const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'evals', component: Evals},
   {path: 'docs', component: Docs},
+  {path: 'docsfromexcel', component: Docsfromexcel},
   {path: 'about', component: About},
   {path: 'test', component: Test},
   {path: 'search', component: Searchtools},

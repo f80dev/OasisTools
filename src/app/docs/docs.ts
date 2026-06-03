@@ -1,7 +1,7 @@
 import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import {firstValueFrom} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {clear_text, get_headers, local_settings, saveDataToFile, translate_to_openxml} from '../../tools';
+import {clear_text, get_headers, local_settings, readfile, saveDataToFile, translate_to_openxml} from '../../tools';
 import {CommonModule} from "@angular/common";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatSelectModule, MatSelect, MatSelectChange} from "@angular/material/select";
@@ -159,7 +159,9 @@ export class Docs implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selected_file = input.files[0];
-      await this.readfile(this.selected_file)
+      let json:any=await readfile(this.selected_file)
+      this.template_name=json.template_name
+      this.template=json.template
     }
   }
 
@@ -238,17 +240,6 @@ export class Docs implements OnInit {
 
 
 
-  async readfile(file:any){
-    return new Promise((resolve) =>{
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        this.template=reader.result
-        this.template_name=file.name.replace(".docx","")
-        localStorage.setItem("template",this.template || "")
-        resolve(true)
-      }})
-  }
 
 
 
