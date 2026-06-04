@@ -1,0 +1,29 @@
+{
+  "/api/v2": {
+    "target": "https://testcnsmdp.scolasis.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+
+  "/doc/health": {
+    "target": "http://127.0.0.1:8910",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/doc/health": "/health"
+    }
+  },
+
+
+  "/doc/merge/": {
+    "target": "http://127.0.0.1:8910",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/doc/merge/": "/merge/"
+    }
+  }
+}
