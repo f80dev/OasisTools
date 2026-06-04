@@ -34,6 +34,32 @@
           <button mat-icon-button (click)="clearExcel()" aria-label="Supprimer le fichier Excel">
             <mat-icon>close</mat-icon>
           </button>
+
+
+
+        </div>
+
+        <!-- Data preview -->
+        <div *ngIf="excelData && excelData.length > 0" class="form-section">
+          <h4 class="collapsible-header" (click)="toggleDataPreview()">
+            <mat-icon>{{ dataPreviewCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+            Aperçu des données ({{ excelData.length }} lignes)
+          </h4>
+          <div class="data-preview" *ngIf="!dataPreviewCollapsed">
+            <table>
+              <thead>
+              <tr>
+                <th *ngFor="let header of excelHeaders">{{ header }}</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let row of excelData.slice(0, 5)">
+                <td *ngFor="let header of excelHeaders">{{ row[header] }}</td>
+              </tr>
+              </tbody>
+            </table>
+            <p *ngIf="excelData.length > 5" class="preview-note">Affichage des 5 premières lignes sur {{ excelData.length }}</p>
+          </div>
         </div>
 
         <!-- Skip second row checkbox - Excel only -->
@@ -43,20 +69,26 @@
 
         <!-- Column headers display -->
         <div *ngIf="excelHeaders.length > 0" class="headers-display">
-          <h4>Colonnes disponibles</h4>
+          <h4>Champs disponibles pour le modèle</h4>
+
           <div class="headers-list">
-            <span *ngFor="let header of excelHeaders" class="header-tag" (click)="copyToClipboard(header)">{{ header }}</span>
+            <span *ngFor="let header of excelHeaders" class="header-tag"
+                  style="cursor: copy;"
+                  title="Cliquez pour copier le nom du champs"
+                  (click)="copyToClipboard(header)">{{ header }}</span>
           </div>
         </div>
 
         <!-- Missing placeholders warning -->
         <div *ngIf="missingPlaceholders.length > 0" class="missing-placeholders">
-          <h4>⚠️ Champs du modèle absents des colonnes</h4>
+          <h4>⚠️ Champs du modèle absents données</h4>
           <div class="missing-list">
             <span *ngFor="let placeholder of missingPlaceholders" class="missing-tag" (click)="copyToClipboard(placeholder)">{{ placeholder }}</span>
           </div>
         </div>
       </div>
+
+
 
       <!-- Template drop zone -->
       <div class="form-section">
@@ -75,38 +107,27 @@
           <div class="file-info">
             <span class="file-name">Modèle sélectionné : {{ template_name }}</span>
           </div>
-          <button mat-icon-button (click)="clearTemplate()" aria-label="Supprimer le template">
+
+          <button mat-icon-button (click)="clearTemplate()" title="Supprimer le template">
             <mat-icon>close</mat-icon>
+          </button>
+          <button mat-icon-button (click)="openTemplate()" title="Ouvrir le modèle">
+            <mat-icon>open_in_new</mat-icon>
           </button>
         </div>
       </div>
 
-      <!-- Data preview -->
-      <div *ngIf="excelData && excelData.length > 0" class="form-section">
-        <h4>Aperçu des données ({{ excelData.length }} lignes)</h4>
-        <div class="data-preview">
-          <table>
-            <thead>
-              <tr>
-                <th *ngFor="let header of excelHeaders">{{ header }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let row of excelData.slice(0, 5)">
-                <td *ngFor="let header of excelHeaders">{{ row[header] }}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p *ngIf="excelData.length > 5" class="preview-note">Affichage des 5 premières lignes sur {{ excelData.length }}</p>
-        </div>
-      </div>
+
 
       <!-- Generate button -->
-      <div class="form-actions" *ngIf="template && excelData && excelData.length > 0 && message === ''">
-        <button mat-raised-button color="primary" (click)="generate_doc()">
+      <div class="form-actions" *ngIf="message === ''">
+        <button mat-raised-button color="primary" (click)="generate_doc()" *ngIf="template && excelData && excelData.length > 0 && missingPlaceholders.length == 0">
           <mat-icon>auto_fix_high</mat-icon>
           Générer les documents
         </button>
+
+
+
       </div>
     </mat-card-content>
   </mat-card>

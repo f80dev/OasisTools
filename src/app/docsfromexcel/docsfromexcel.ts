@@ -41,14 +41,16 @@ export class Docsfromexcel {
   public templateFile: File | null = null;
   public template_name: string = "";
   protected message = "";
-  public skipSecondRow: boolean = true;
+  public skipSecondRow: boolean = false;
   public isExcelFile: boolean = false;
   public missingPlaceholders: string[] = [];
+  public dataPreviewCollapsed: boolean = true;
 
   async onExcelFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       await this.readExcelFile(input.files[0]);
+      await this.analyzeTemplatePlaceholders();
     }
   }
 
@@ -58,6 +60,10 @@ export class Docsfromexcel {
     }).catch(err => {
       console.error('Failed to copy: ', err);
     });
+  }
+
+  toggleDataPreview(): void {
+    this.dataPreviewCollapsed = !this.dataPreviewCollapsed;
   }
 
   onExcelDrop(event: DragEvent) {
@@ -136,6 +142,7 @@ export class Docsfromexcel {
     this.excelHeaders = [];
     this.excelFileName = "";
     this.isExcelFile = false;
+    this.missingPlaceholders=[]
   }
 
   async onTemplateFileSelected(event: Event) {
@@ -174,6 +181,7 @@ export class Docsfromexcel {
   }
 
   async analyzeTemplatePlaceholders() {
+    if(this.excelData.length==0)return
     try {
       const arrayBuffer = this.template as ArrayBuffer;
       const zip = await JSZip.loadAsync(arrayBuffer);
@@ -245,7 +253,7 @@ export class Docsfromexcel {
     return await firstValueFrom(this.http.post(url, data));
   }
 
-  saveBase64AsDocx(base64Data: string, fileName: string) {
+  saveBase64AsDocx(base64Data: string, fileName: string,extension="zip") {
     if (!/^[A-Za-z0-9+/]*={0,2}$/.test(base64Data)) {
       console.error('Invalid base64 input detected');
       return;
@@ -263,12 +271,12 @@ export class Docsfromexcel {
 
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = fileName.endsWith('.docx') ? fileName : `${fileName}.docx`;
+      link.download = fileName.endsWith('.'+extension) ? fileName : `${fileName}.`+extension;
       link.click();
 
       URL.revokeObjectURL(link.href);
     } catch (e) {
-      console.error('Error saving DOCX:', e);
+      console.error('Error saving '+extension, e);
     }
   }
 
@@ -311,7 +319,7 @@ export class Docsfromexcel {
     try {
       const zip: any = await this.get_doc("/merge/", {template: this.template, data: data});
       const safeName = String(this.template_name).replace(/[^a-zA-Z0-9_-]/g, '_').substring(0, 50);
-      this.saveBase64AsDocx(zip.document_base64, `${this.template_name}_${safeName}`);
+      this.saveBase64AsDocx(zip.zip_base64, `${safeName}`+".zip");
     } catch (e) {
       console.error("Erreur lors de la génération du document", e);
       this.snackbar.open(`Problème lors de la génération du document`, "Ok");
@@ -319,5 +327,15 @@ export class Docsfromexcel {
 
     this.message = "";
     this.snackbar.open("Génération terminée", "Ok");
+  }
+
+  protected openTemplate() {
+    if (!this.templateFile) {
+      this.snackbar.open("Aucun modèle sélectionné", "Ok");
+      return;
+    }
+    const blob = new Blob([this.template], {type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
   }
 }
