@@ -10,15 +10,14 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatIconModule} from '@angular/material/icon';
 import {FormsModule} from "@angular/forms";
+import {get_headers} from '../../tools';
 
 @Component({
   selector: 'app-evals',
   standalone: true,
   imports: [
     NgIf,
-    JsonPipe,
     MatButton,
-    NgForOf,
     FormsModule,
     MatCardModule,
     MatTableModule,
@@ -48,9 +47,13 @@ export class Evals implements OnInit {
     return this.resp.filter(r => r.result === 'error').length;
   }
 
+
+
   async ngOnInit() {
     this.loadSettings();
   }
+
+
 
   loadSettings() {
     const stored = localStorage.getItem('oasis_settings');
@@ -60,6 +63,8 @@ export class Evals implements OnInit {
       this.importFirstLineOnly = settings.evalImportFirstLineOnly ?? false;
     }
   }
+
+
 
   get_headers_from_proxy() : any {
     const stored = localStorage.getItem('oasis_settings');
@@ -71,14 +76,20 @@ export class Evals implements OnInit {
     };
   }
 
+
+
   onDragOver(event: DragEvent): void {
     event.preventDefault();
   }
+
+
 
   StoplImport(): void {
     this.isStopped = true;
     this.exportRespToCsv();
   }
+
+
 
   ClearImport(): void {
     this.resp=[]
@@ -116,6 +127,8 @@ export class Evals implements OnInit {
     link.click();
     document.body.removeChild(link);
   }
+
+
 
   onDrop(event: DragEvent): void {
     event.preventDefault();
@@ -183,6 +196,16 @@ export class Evals implements OnInit {
       const worksheet = workbook.Sheets["OASIS"];
 
       let rows:any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      for(let i=0;i<rows[0].length;i++)
+        rows[0][i]=rows[0][i].substring(0,5).toLowerCase()
+
+      const header={
+        code_course:rows[0].indexOf("disci"),
+        code_student:rows[0].indexOf("etudi"),
+        status:rows[0].indexOf("statu"),
+        mention:rows[0].indexOf("menti"),
+        commentaire:rows[0].indexOf("comme"),
+      }
       rows = rows.slice(1);
       if (this.importFirstLineOnly) {
         rows = rows.slice(0, 1);
@@ -193,9 +216,15 @@ export class Evals implements OnInit {
           this.message = 'Import cancelled.';
           break;
         }
-        if(row[0] && row[1]){
+        if(row[header.code_course] && row[header.code_student]){
           try{
-            let rc=await this.update_from_students_and_course(row[0],row[1],row[3],row[2],row[4])    // Await the async function
+            let rc=await this.update_from_students_and_course(
+              row[header.code_course],
+              row[header.code_student],
+              row[header.status],
+              header.mention>-1 ? row[header.mention] : "",
+              header.commentaire>-1 ? row[header.commentaire] : ""
+            )    // Await the async function
             if (!this.isStopped) {
               this.resp.push({ ...row, result:"ok"})
             }
@@ -228,7 +257,7 @@ export class Evals implements OnInit {
 
   async get_evals(code_course:string,year:number) : Promise<any> {
     const url = '/api/v2/'+year+'/courses/'+code_course+"/assessments"
-    return firstValueFrom(this.http.get(url, { headers: this.get_headers_from_proxy() }));
+    return firstValueFrom(this.http.get(url, { headers: get_headers() }));
   }
 
 
@@ -266,7 +295,7 @@ export class Evals implements OnInit {
       "STATUS": status,
       "COMMENT": comment,
     }
-    return firstValueFrom(this.http.patch(url, body, { headers: this.get_headers_from_proxy() }));
+    return firstValueFrom(this.http.patch(url, body, { headers: get_headers() }));
   }
 
 
@@ -281,10 +310,21 @@ export class Evals implements OnInit {
       "COMMENT": comment
     }
     try {
-      console.log("Envoi de "+JSON.stringify(body)+" sur "+url)
-      return await firstValueFrom(this.http.post(url, body, {headers: this.get_headers_from_proxy()}));
+      console.log("[eval_discipline] Envoi de "+JSON.stringify(body)+" sur "+url)
+      console.log("[eval_discipline] Proxy target: https://testcnsmdp.scolasis.com")
+      console.log("[eval_discipline] Full URL will be: https://testcnsmdp.scolasis.com"+url)
+      const response = await firstValueFrom(this.http.post(url, body, {headers: get_headers(), observe: 'response'}));
+      console.log("[eval_discipline] Response status:", response.status);
+      console.log("[eval_discipline] Response body:", response.body);
+      return response.body;
     } catch (error: any) {
-      console.error('Error in eval_discipline:', error);
+      console.error('[eval_discipline] Error details:', {
+        message: error?.message,
+        status: error?.status,
+        statusText: error?.statusText,
+        url: error?.url,
+        error: error?.error
+      });
       throw error;
     }
   }

@@ -1,12 +1,10 @@
 {
   "/api/v2": {
-    "target": "https://cnsmdp.scolasis.com",
+    "target": "https://testcnsmdp.scolasis.com",
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"
   },
-
-
 
 
   "/doc": {
