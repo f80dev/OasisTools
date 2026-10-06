@@ -4,6 +4,65 @@
     <p>Import batch d'évaluations depuis un fichier Excel OASIS</p>
   </div>
 
+  <!-- Format attendu Card -->
+  <mat-card class="format-card" *ngIf="resp.length === 0">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>description</mat-icon>
+      <mat-card-title>Format du fichier Excel attendu</mat-card-title>
+      <mat-card-subtitle>Le fichier doit contenir une feuille nommée <code>OASIS</code> avec les colonnes suivantes</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="format-table">
+        <thead>
+          <tr>
+            <th>En-tête de colonne</th>
+            <th>Préfixe reconnu</th>
+            <th>Obligatoire</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Code discipline</strong></td>
+            <td><code>disci...</code></td>
+            <td><span class="badge badge-required">Oui</span></td>
+            <td>Code de la discipline / cours évalué</td>
+          </tr>
+          <tr>
+            <td><strong>Code étudiant</strong></td>
+            <td><code>etudi...</code></td>
+            <td><span class="badge badge-required">Oui</span></td>
+            <td>Code de l'étudiant à évaluer</td>
+          </tr>
+          <tr>
+            <td><strong>Statut</strong></td>
+            <td><code>statu...</code></td>
+            <td><span class="badge badge-required">Oui</span></td>
+            <td>Statut de l'évaluation (transmis tel quel à l'API)</td>
+          </tr>
+          <tr>
+            <td><strong>Mention</strong></td>
+            <td><code>menti...</code></td>
+            <td><span class="badge badge-optional">Non</span></td>
+            <td>Mention associée à l'évaluation</td>
+          </tr>
+          <tr>
+            <td><strong>Commentaire</strong></td>
+            <td><code>comme...</code></td>
+            <td><span class="badge badge-optional">Non</span></td>
+            <td>Commentaire libre attaché à l'évaluation</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="format-note">
+        <mat-icon>info</mat-icon>
+        Seuls les <strong>5 premiers caractères</strong> des en-têtes sont utilisés pour identifier les colonnes
+        (insensible à la casse). Une ligne est traitée uniquement si les colonnes
+        <em>discipline</em> et <em>étudiant</em> sont renseignées.
+      </p>
+    </mat-card-content>
+  </mat-card>
+
   <!-- Upload Card -->
   <mat-card class="upload-card" *ngIf="resp.length === 0">
     <mat-card-content>

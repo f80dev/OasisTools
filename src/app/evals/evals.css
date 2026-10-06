@@ -71,6 +71,77 @@
   color: #4caf50;
 }
 
+/* Format Card */
+.format-card {
+  border-radius: 16px !important;
+}
+
+.format-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.format-table th,
+.format-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.format-table th {
+  font-weight: 500;
+  opacity: 0.7;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.format-table code {
+  background: rgba(0, 188, 212, 0.12);
+  color: #00bcd4;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-required {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+}
+
+.badge-optional {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.format-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(0, 188, 212, 0.06);
+  border-left: 3px solid #00bcd4;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.format-note mat-icon {
+  color: #00bcd4;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
 /* Upload Card */
 .upload-card {
   border-radius: 16px !important;
