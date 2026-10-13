@@ -197,18 +197,19 @@ export class Evals implements OnInit {
       const workbook = XLSX.read(bstr, { type: 'binary' });
       const worksheet = workbook.Sheets["OASIS"];
 
-      let rows:any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      let rows:any[] = XLSX.utils.sheet_to_json(worksheet, { header: 0 });
       for(let i=0;i<rows[0].length;i++)
         rows[0][i]=rows[0][i].substring(0,5).toLowerCase()
 
       const header={
-        code_course:rows[0].indexOf("disci"),
-        code_student:rows[0].indexOf("etudi"),
-        status:rows[0].indexOf("statu"),
-        mention:rows[0].indexOf("menti"),
-        commentaire:rows[0].indexOf("comme"),
+        code_course:"discipline",
+        code_student:"etudiant",
+        status:"status",
+        mention:"mention",
+        commentaire:"commentaire",
       }
-      rows = rows.slice(1);
+
+      // rows = rows.slice(1);
       if (this.importFirstLineOnly) {
         rows = rows.slice(0, 1);
       }
@@ -224,8 +225,8 @@ export class Evals implements OnInit {
               row[header.code_course],
               row[header.code_student],
               row[header.status],
-              header.mention>-1 ? row[header.mention] : "",
-              header.commentaire>-1 ? row[header.commentaire] : ""
+              // header.mention>-1 ? row[header.mention] : "",
+              // header.commentaire>-1 ? row[header.commentaire] : ""
             )    // Await the async function
             if (!this.isStopped) {
               this.resp.push({ ...row, result:"ok"})
